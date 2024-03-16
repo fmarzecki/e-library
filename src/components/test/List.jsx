@@ -20,12 +20,12 @@ function List() {
     });
 
     fruitsObjects.sort((a,b) => a.calories - b.calories)
+
     const listFruitsObject = fruitsObjects.map(fruit => {
         return (
         <li key={fruit.name}> {fruit.name} : {fruit.calories} </li> 
         )
     })
-
 
   return (
     <ul> {listFruitsObject} </ul>

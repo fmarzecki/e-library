@@ -18,8 +18,14 @@ function Clicker({text}) {
 
         button1.addEventListener("click", handleOnClickRef);
         button2.addEventListener("click", handleOnClickRef);
-
+        
         console.log("Event handler attached")
+
+        return () => {
+            button1.removeEventListener("click", handleOnClickRef);
+            button2.removeEventListener("click", handleOnClickRef);
+        }
+            
     }, [])
 
     useEffect(() => {
@@ -65,11 +71,13 @@ function Clicker({text}) {
                 Clicked {refCounter.current} times (useRef)
             </Typography>
         </Grid>
+
         <Grid item xs={6} >
             <Button id='b1' disabled={count%2===0} size='large' variant="outlined" onClick={buttonOnClick}>
                 Click me
             </Button>
         </Grid>
+
         <Grid item xs={6}>
             <Button id='b2' disabled={count%2===1} size='large' variant="outlined" onClick={()=> setCount(count+1)}>
                 Click me
@@ -77,6 +85,7 @@ function Clicker({text}) {
         </Grid>
         {count > 7 && stopClicking}
     </Grid>
+
         <Grid >
             <Typography> 
                 Top Tier owoców
@@ -91,9 +100,10 @@ function Clicker({text}) {
                 {textArea}
             </Typography>
         </Grid>
+
         <Box>
             <Typography>
-               <b>Cat fact from API:</b>  {catFact}
+            <b>Cat fact from API:</b>  {catFact}
             </Typography>
         </Box>
         
