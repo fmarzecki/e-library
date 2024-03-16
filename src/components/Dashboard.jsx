@@ -7,11 +7,8 @@ import MenuBookIcon from '@mui/icons-material/MenuBook';
 import BookmarkAddedIcon from '@mui/icons-material/BookmarkAdded';
 import { Outlet } from 'react-router-dom';
 import ResponsiveAppBar from './ResponsiveAppBar';
-<<<<<<< HEAD
 import { StyledLink } from './StyledLink';
 import { Style } from '@mui/icons-material';
-=======
->>>>>>> fm
 
 const theme = createTheme({
   components: {
@@ -47,7 +44,6 @@ const Dashboard = () => {
               Biblioteka
             </Typography>
             <ThemeProvider theme={theme}>
-<<<<<<< HEAD
                 {/* component = https://mui.com/material-ui/guides/composition/ */}
 
                 {/* TODO
@@ -59,20 +55,11 @@ const Dashboard = () => {
               <Button component={StyledLink} to={"/dashboard/news"} fullWidth><MenuBookIcon/>&nbsp; Katalog</Button>
               <Button component={StyledLink} to={"/dashboard/news"} fullWidth><CircleNotificationsIcon/>&nbsp; Ogłoszenia</Button>
               <Button component={StyledLink} to={"/dashboard/account"} fullWidth><AccountCircleIcon/>&nbsp; Konto</Button>
-=======
-              <Button fullWidth><BookmarkAddedIcon/>&nbsp;Wypożyczenia</Button>
-              <Button fullWidth><MenuBookIcon/>&nbsp;Katalog</Button>
-              <Button fullWidth><CircleNotificationsIcon/>&nbsp;Ogłoszenia</Button>
-              <Button fullWidth><AccountCircleIcon/>&nbsp;Konto</Button>
->>>>>>> fm
             </ThemeProvider>
           </Grid>
           <Grid item xs={12} sm sx={{ bgcolor: "rgb(255, 255, 255)", borderRadius: "20px", margin: "40px 20px"}}>
             <ResponsiveAppBar/>
-<<<<<<< HEAD
             <Outlet ></Outlet>
-=======
->>>>>>> fm
           </Grid>
         </Grid>
       </>
