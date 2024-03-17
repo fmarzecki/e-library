@@ -29,8 +29,7 @@ function News() {
               expandIcon={<ExpandMoreIcon />}
               aria-controls="panel1-content"
               id="panel1-header"
-              sx={{fontWeight: 'bold'}}
-            >
+              sx={{fontWeight: 'bold'}}>
               <Typography bold>
                 <b>Popularny streamer twitch.tv Jaskier sponsorem naszej biblioteki</b>
               </Typography>
