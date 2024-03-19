@@ -59,7 +59,7 @@ const Catalog = () => {
 
   return (
     <Grid container spacing={4} padding={5}>
-      <Grid item xs={12} md={12}>
+      <Grid item xs={12} md={12} >
         <TextField
           label="Filtruj"
           variant="outlined"
@@ -80,8 +80,8 @@ const Catalog = () => {
         </Menu>
       </Grid>
       {filteredBooks.map((book) => (
-        <Grid item xs={12} sm={6} md={4} lg={3} key={book.id}>
-          <Card sx={{ maxWidth: 345 }}>
+        <Grid item xs={12} sm={6} md={4} lg={2} key={book.id}>
+          <Card sx={{ maxWidth: 400 }}>
             <CardMedia component="img" alt="book_image" height="140" image={zdj_test}/>
             <CardContent>
               <Typography variant="h6" component="div">
