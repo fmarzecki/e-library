@@ -10,6 +10,8 @@ import Clicker from './components/test/Clicker';
 import Dashboard from './components/Dashboard';
 import News from './components/News';
 import Account from './components/Account';
+import Catalog from './components/Catalog';
+import Rentals from './components/Rentals';
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -17,7 +19,7 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Clicker/>,
+    element: <Dashboard/>,
     errorElement: <NotFoundPage/>
   },
 
@@ -44,6 +46,14 @@ const router = createBrowserRouter([
         path: '/dashboard/account',
         element: <Account />,
       },
+      {
+        path: '/dashboard/catalog',
+        element: <Catalog />,
+      }, 
+      {
+        path: '/dashboard/rentals',
+        element: <Rentals />,
+      }
     ],
   }
 ]);
