@@ -12,7 +12,7 @@ import News from './components/News';
 import Account from './components/Account';
 import Catalog from './components/Catalog';
 import Rentals from './components/Rentals';
-
+import LoginSignup from './components/Authentication/LoginSignup';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -31,6 +31,11 @@ const router = createBrowserRouter([
   {
     path: '/clicker',
     element: <Clicker />,
+
+  },
+  {
+    path: '/authorization',
+    element: <LoginSignup />,
 
   },
 
