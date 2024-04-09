@@ -5,7 +5,7 @@ import CardMedia from '@mui/material/CardMedia';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 
-import zdj_test from './pomaranczka_test.jpg';
+import zdj_test from './coby.jpg';
 
 const Catalog = () => {
   const [books, setBooks] = useState([
@@ -82,7 +82,7 @@ const Catalog = () => {
       {filteredBooks.map((book) => (
         <Grid item xs={12} sm={6} md={4} lg={2} key={book.id}>
           <Card sx={{ maxWidth: 400 }}>
-            <CardMedia component="img" alt="book_image" height="140" image={zdj_test}/>
+            <CardMedia component="img" alt="book_image" height="140" image={zdj_test} />
             <CardContent>
               <Typography variant="h6" component="div">
                 {book.title}
