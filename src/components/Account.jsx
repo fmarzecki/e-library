@@ -53,7 +53,7 @@ const Account = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <Paper>
+      <Paper elevation={2}>
         <Grid container spacing={2} padding={3}>
           <Grid item xs={12}>
             <Typography variant="h6">

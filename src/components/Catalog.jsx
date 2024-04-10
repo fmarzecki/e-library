@@ -58,7 +58,7 @@ const Catalog = () => {
   };
 
   return (
-    <Grid container spacing={4} padding={5}>
+    <Grid container spacing={4} >
       <Grid item xs={12} md={12} >
         <TextField
           label="Filtruj"

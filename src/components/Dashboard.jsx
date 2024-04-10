@@ -7,6 +7,7 @@ import MenuBookIcon from '@mui/icons-material/MenuBook';
 import BookmarkAddedIcon from '@mui/icons-material/BookmarkAdded';
 import { Outlet, NavLink } from 'react-router-dom';
 import ResponsiveAppBar from './ResponsiveAppBar';
+import HistoryIcon from '@mui/icons-material/History';
 
 const theme = createTheme({
   components: {
@@ -53,9 +54,10 @@ const Dashboard = () => {
                 Ogolnie to tam na gorze zmienilem i dodalem &.active dzieku czemu dziala */}
 
             <Button component={NavLink} to={"/dashboard/rentals"} fullWidth><BookmarkAddedIcon />&nbsp; Wypożyczenia</Button>
+            <Button component={NavLink} to={"/dashboard/history"} fullWidth ><HistoryIcon />&nbsp; Historia</Button>
+            <Button component={NavLink} to={"/dashboard/account"} fullWidth><AccountCircleIcon />&nbsp; Konto</Button>
             <Button component={NavLink} to={"/dashboard/catalog"} fullWidth><MenuBookIcon />&nbsp; Katalog</Button>
             <Button component={NavLink} to={"/dashboard/news"} fullWidth><CircleNotificationsIcon />&nbsp; Ogłoszenia</Button>
-            <Button component={NavLink} to={"/dashboard/account"} fullWidth><AccountCircleIcon />&nbsp; Konto</Button>
           </ThemeProvider>
         </Grid>
         <Grid item xs={12} sm sx={{ bgcolor: "rgb(255, 255, 255)", borderRadius: "20px", margin: "40px 20px" }}>
