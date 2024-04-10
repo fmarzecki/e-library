@@ -7,20 +7,23 @@ import { CssBaseline } from '@mui/material';
 import ProfilesPage from './components/test/ProfilesPage';
 import NotFoundPage from './components/error/NotFoundPage';
 import Clicker from './components/test/Clicker';
-import Dashboard from './components/Dashboard';
-import News from './components/News';
-import Account from './components/Account';
-import Catalog from './components/Catalog';
-import Rentals from './components/Rentals';
-import RentalsHistory from './components/RentalsHistory';
+import ReaderDashboard from './components/Reader/ReaderDashboard';
+import News from './components/Reader/News';
+import Account from './components/Reader/Account';
+import Catalog from './components/Reader/Catalog';
+import Rentals from './components/Reader/Rentals';
+import RentalsHistory from './components/Reader/RentalsHistory';
 import LoginSignup from './components/Authentication/LoginSignup';
+import BookManagerDashboard from './components/BookManager/BookManagerDashboard';
+import AddBookForm from './components/BookManager/AddBookForm';
+import ManageBooks from './components/BookManager/ManageBooks';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Dashboard />,
+    element: <ReaderDashboard />,
     errorElement: <NotFoundPage />
   },
 
@@ -41,31 +44,55 @@ const router = createBrowserRouter([
   },
 
   {
-    path: '/dashboard',
-    element: <Dashboard />,
+    path: '/readerDashboard',
+    element: <ReaderDashboard />,
     children: [
       {
-        path: '/dashboard/news',
+        path: '/readerDashboard/news',
         element: <News />,
       },
       {
-        path: '/dashboard/account',
+        path: '/readerDashboard/account',
         element: <Account />,
       },
       {
-        path: '/dashboard/catalog',
+        path: '/readerDashboard/catalog',
         element: <Catalog />,
       },
       {
-        path: '/dashboard/rentals',
+        path: '/readerDashboard/rentals',
         element: <Rentals />,
       },
       {
-        path: '/dashboard/history',
+        path: '/readerDashboard/history',
         element: <RentalsHistory />,
       }
     ],
+  }, 
+
+  {
+    path: '/bookManagerDashboard',
+    element: <BookManagerDashboard />,
+    children: [
+      {
+        path: '/bookManagerDashboard/addBook',
+        element: <AddBookForm />,
+      },
+      {
+        path: '/bookManagerDashboard/books',
+        element: <ManageBooks />,
+      },
+      {
+        path: '/bookManagerDashboard/catalog',
+        element: <Catalog />,
+      },
+      {
+        path: '/bookManagerDashboard/rentals',
+        element: <Rentals />,
+      },
+    ]
   }
+
 ]);
 
 root.render(
