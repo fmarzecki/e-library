@@ -1,38 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, } from 'react';
 import { Grid, TextField, Button, Menu, MenuItem } from '@mui/material';
 import Card from '@mui/material/Card';
 import CardMedia from '@mui/material/CardMedia';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
-
+import axios from 'axios';
 import zdj_test from './coby.jpg';
 
 const Catalog = () => {
-  const [books, setBooks] = useState([
-    { id: 1, title: 'Książka 1', author: 'Autor 1', category: 'Kategoria 1' },
-    { id: 2, title: 'Książka 2', author: 'Autor 2', category: 'Kategoria 2' },
-    { id: 3, title: 'Książka 3', author: 'Autor 1', category: 'Kategoria 1' },
-    { id: 4, title: 'Książka 4', author: 'Autor 3', category: 'Kategoria 3' },
-    { id: 5, title: 'Książka 5', author: 'Autor 4', category: 'Kategoria 2' },
-    { id: 6, title: 'Książka 6', author: 'Autor 5', category: 'Kategoria 3' },
-    { id: 7, title: 'Książka 7', author: 'Autor 1', category: 'Kategoria 1' },
-    { id: 8, title: 'Książka 8', author: 'Autor 2', category: 'Kategoria 2' },
-    { id: 9, title: 'Książka 9', author: 'Autor 3', category: 'Kategoria 3' },
-    { id: 10, title: 'Książka 10', author: 'Autor 1', category: 'Kategoria 1' },
-    { id: 11, title: 'Książka 11', author: 'Autor 3', category: 'Kategoria 3' }
-  ]);
 
-  const [filteredBooks, setFilteredBooks] = useState(books);
+  const [books, setBooks] = useState([]);
+  const [filteredBooks, setFilteredBooks] = useState([]);
   const [filterColumn, setFilterColumn] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const columns = [
-    { field: 'id', headerName: 'ID', width: 70 },
-    { field: 'title', headerName: 'Tytuł', width: 130 },
-    { field: 'author', headerName: 'Autor', width: 130 },
-    { field: 'category', headerName: 'Kategoria', width: 130 },
-  ];
+  useEffect(() => {
+    axios.get('http://localhost:8080/book/getAll')
+        .then(response => {
+        setBooks(response.data.data.Books);
+        setFilteredBooks(response.data.data.Books)
+        console.log(response.data.data.Books)
+         })
+        .catch(error => {
+        console.error(error);
+    });
+}, [])
 
+  const columns = [
+    { field: 'title', headerName: 'Tytuł', width: 130 },
+    { field: 'bookAuthor', headerName: 'Autor', width: 130 },
+    { field: 'bookCategory', headerName: 'Kategoria', width: 130 },
+  ];
+  
   const handleFilter = (event) => {
     const keyword = event.target.value.toLowerCase();
     let filtered = books;
@@ -58,8 +57,8 @@ const Catalog = () => {
   };
 
   return (
-    <Grid container spacing={4} >
-      <Grid item xs={12} md={12} >
+    <Grid container  justifyContent="center" alignItems="center" spacing={3}  >
+      <Grid item xs={12}>
         <TextField
           label="Filtruj"
           variant="outlined"
@@ -80,15 +79,15 @@ const Catalog = () => {
         </Menu>
       </Grid>
       {filteredBooks.map((book) => (
-        <Grid item xs={12} sm={6} md={4} lg={2} key={book.id}>
-          <Card sx={{ maxWidth: 400 }}>
-            <CardMedia component="img" alt="book_image" height="140" image={zdj_test} />
+        <Grid item xs={12} sm={4} md={2} key={book.bookId} minWidth={200} >
+          <Card >
+            <CardMedia component="img" alt="book_image"  sx={{ objectFit: 'contain', height: '340px'}} image={book.imageUrl} />
             <CardContent>
               <Typography variant="h6" component="div">
                 {book.title}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Autor: {book.author}
+                Autor: {book.bookAuthor}
               </Typography>
               <Button size="small">Zarezerwuj</Button>
               <Button size="small">Informacje</Button>

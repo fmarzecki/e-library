@@ -42,7 +42,7 @@ const Dashboard = () => {
   return (
     <>
       <Grid container sx={{ bgcolor: "rgb(219, 223, 234)" }}>
-        <Grid item xs={12} sm={1.5} minWidth={200} sx={{ margin: "10px", height: { xs: "100%", sm: "100vh" } }}>
+        <Grid item xs={12} sm={1.5} minWidth={200} sx={{ margin: "10px", height: {sm: "100vh" } }}>
           <Typography gutterBottom variant='h5' align='center' sx={{ marginBottom: '60px' }}>
             <BookIcon fontSize='large' sx={{ marginTop: '20px' }}></BookIcon><br />
             Biblioteka
