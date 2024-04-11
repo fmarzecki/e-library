@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import {Box, Typography, List, ListItem, ListItemText, ListItemSecondaryAction, IconButton, TextField, Button, Menu, MenuItem } from '@mui/material';
+import {Typography, List, ListItem, ListItemText, ListItemSecondaryAction, IconButton, TextField, Button, Menu, MenuItem } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
@@ -20,8 +20,6 @@ const BookList = () => {
     releaseDate: '',
     bookAuthor: ''
   });
-
-  
   const [pagination, setPagination] = useState({
     filter: '',
     filterBy: '',
@@ -41,7 +39,7 @@ const BookList = () => {
       setTotalPages(1);
       setPagination(prevState => ({
         ...prevState,
-        ["page"]: 0
+        page: 0
       }));
     }
   };
@@ -62,10 +60,6 @@ const BookList = () => {
     }
   };
 
-  const handleEdit = (book) => {
-    setEditedBook(book);
-  };
-
   const handleSave = async () => {
     try {
       await axios.post('http://localhost:8080/book/save', editedBook);
@@ -83,6 +77,10 @@ const BookList = () => {
       console.error('Error updating book:', error);
       alert('Nie udało sie zaktualizować książki.');
     }
+  };
+
+  const handleEdit = (book) => {
+    setEditedBook(book);
   };
 
   const handleChange = (e) => {
@@ -115,7 +113,7 @@ const BookList = () => {
   const handlePageChange = (event, value) => {
     setPagination(prevState => ({
       ...prevState,
-      ["page"]: value-1
+      page: value-1
     }));
     console.log(pagination);
   }
@@ -123,9 +121,9 @@ const BookList = () => {
   const handleFilterBy = (e) => {
     setPagination(prevState => ({
         ...prevState,
-        ["filterBy"]: selectedMenuItem,
-        ["filter"]: filterText,
-        ["page"]: 0
+        filterBy: selectedMenuItem,
+        filter: filterText,
+        page: 0
       }));
   }
   return (

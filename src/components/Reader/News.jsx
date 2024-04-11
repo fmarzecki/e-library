@@ -6,12 +6,16 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 function News() {
-    const [catFact, setCatFact] = useState("");
+    const [news, setNews] = useState([
+      {name: "Poszukiwane wolontariusze do biblioteki!", content: "Szukamy entuzjastycznych wolontariuszy, którzy chcieliby pomóc w naszej bibliotece! Jeśli kochasz książki i masz trochę czasu wolnego, dołącz do naszego zespołu. Oferujemy przyjazne środowisko pracy i możliwość rozwijania umiejętności."},
+      {name: "Konkurs czytelniczy dla dzieci i młodzieży!", content: "Zapraszamy wszystkie dzieci i młodzież do wzięcia udziału w naszym konkursie czytelniczym! Czytanie to nie tylko przyjemność, ale także sposób na rozwój intelektualny. Przyjdź do naszej biblioteki, zarejestruj się i bierz udział w wyzwaniach czytelniczych."},
+      {name: "Warsztaty pisania dla osób w każdym wieku!", content: "Marzysz o napisaniu własnej książki? Chcesz poprawić swoje umiejętności pisarskie? Dołącz do naszych warsztatów pisania organizowanych w bibliotece! "},
+    ]);
 
     useEffect(() => {
-        axios.get('https://catfact.ninja/fact')
+        axios.get('http://localhost:8080/news/getFirstTen')
             .then(response => {
-            setCatFact(response.data.fact);
+            setNews(response.data.data.news);
              })
             .catch(error => {
             console.error(error);
@@ -20,48 +24,21 @@ function News() {
 
   return (
         <div>
-          <Accordion>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel1-content"
-              id="panel1-header"
-              sx={{fontWeight: 'bold'}}>
-                Poszukiwane wolontariusze do biblioteki!
-            </AccordionSummary>
-            <AccordionDetails>
-              Szukamy entuzjastycznych wolontariuszy, którzy chcieliby pomóc w naszej bibliotece! Jeśli kochasz książki i masz trochę czasu wolnego, dołącz do naszego zespołu. Oferujemy przyjazne środowisko pracy i możliwość rozwijania umiejętności. 
-            </AccordionDetails>
-          </Accordion>
-
-          <Accordion>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel2-content"
-              id="panel2-header"
-              sx={{fontWeight: 'bold'}}
-            >
-              Konkurs czytelniczy dla dzieci i młodzieży!
-            </AccordionSummary>
-            <AccordionDetails>
-            Zapraszamy wszystkie dzieci i młodzież do wzięcia udziału w naszym konkursie czytelniczym! Czytanie to nie tylko przyjemność, ale także sposób na rozwój intelektualny. Przyjdź do naszej biblioteki, zarejestruj się i bierz udział w wyzwaniach czytelniczych.
-            </AccordionDetails>
-          </Accordion>
-
-          <Accordion>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel2-content"
-              id="panel2-header"
-              sx={{fontWeight: 'bold'}}
-            >
-              Warsztaty pisania dla osób w każdym wieku!
-            </AccordionSummary>
-            <AccordionDetails>
-            Marzysz o napisaniu własnej książki? Chcesz poprawić swoje umiejętności pisarskie? Dołącz do naszych warsztatów pisania organizowanych w bibliotece! 
-            </AccordionDetails>
-          </Accordion>
-
-
+          {news.map( post => {
+            return (
+            <Accordion>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1-content"
+                id="panel1-header"
+                sx={{fontWeight: 'bold'}}>
+                {post.name}
+              </AccordionSummary>
+              <AccordionDetails>
+                {post.content}
+              </AccordionDetails>
+            </Accordion>
+          )})}
         </div>
       );
 }
