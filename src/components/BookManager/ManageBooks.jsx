@@ -197,9 +197,11 @@ const BookList = () => {
             ) : (
               <>
                 <ListItemText
-                  primaryTypographyProps={{fontWeight: 'bold' }}
+                  
+                  primaryTypographyProps={{fontWeight: 'bold', maxWidth: '60%' }}
                   primary={book.title}
                   secondary={`Author: ${book.bookAuthor}`}
+                  
                 />
                 <ListItemSecondaryAction>
                   <IconButton onClick={() => handleDelete(book.bookId)}>
