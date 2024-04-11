@@ -83,12 +83,12 @@ const Catalog = () => {
         </Menu>
       </Grid>
       {filteredBooks.map((book) => (
-        <Grid item xs={12} sm={4} md={2} key={book.bookId} minWidth={200} >
-          <Card >
+        <Grid item xs={12} sm={4} md={2} key={book.bookId} minWidth={300} >
+          <Card>
             <CardMedia component="img" alt="book_image" sx={{ objectFit: 'contain', height: '340px' }} image={book.imageUrl} />
             <CardContent>
               <Typography variant="h6" component="div">
-                {book.title}
+                {book.title.length > 20 ? `${book.title.slice(0, 20)}...` : book.title}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Autor: {book.bookAuthor}
