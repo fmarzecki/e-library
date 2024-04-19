@@ -5,41 +5,49 @@ import CardMedia from '@mui/material/CardMedia';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import axios from 'axios';
+import Pagination from '@mui/material/Pagination';
+import Stack from '@mui/material/Stack';
 
 const Catalog = () => {
-  const [books, setBooks] = useState([]);
-  const [filteredBooks, setFilteredBooks] = useState([]);
-  const [filterColumn, setFilterColumn] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedMenuItem, setSelectedMenuItem] = useState(null); // Nowy stan dla zaznaczonego elementu w menu
+  const [selectedMenuItem, setSelectedMenuItem] = useState('');
+  const [books, setBooks] = useState([]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [filterText, setFilterText] = useState('');
+  const [pagination, setPagination] = useState({
+    filter: '',
+    filterBy: '',
+    page: 0,
+    size: 4,
+  })
+
+  const fetchBooks = async () => {
+    try {
+      const response = await axios.post('http://localhost:8080/book/getAllPaginated', pagination);
+      setBooks(response.data.data.Books.content);
+      setTotalPages(response.data.data.Books.totalPages);
+      console.log(response.data.data.Books.content);
+    } catch (error) {
+      console.error('Error fetching books:', error);
+      setBooks([]);
+      setTotalPages(1);
+      setPagination(prevState => ({
+        ...prevState,
+        page: 0
+      }));
+    }
+  };
 
   useEffect(() => {
-    axios.get('http://localhost:8080/book/getAll')
-      .then(response => {
-        setBooks(response.data.data.Books);
-        setFilteredBooks(response.data.data.Books)
-      })
-      .catch(error => {
-        console.error(error);
-      });
-  }, []);
+    fetchBooks();
+  }, [pagination]);
+
 
   const columns = [
     { field: 'title', headerName: 'Tytuł', width: 130 },
     { field: 'bookAuthor', headerName: 'Autor', width: 130 },
-    { field: 'bookCategory', headerName: 'Kategoria', width: 130 },
   ];
 
-  const handleFilter = (event) => {
-    const keyword = event.target.value.toLowerCase();
-    let filtered = books;
-    if (filterColumn) {
-      filtered = books.filter((book) =>
-        book[filterColumn].toLowerCase().includes(keyword)
-      );
-    }
-    setFilteredBooks(filtered);
-  };
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -50,10 +58,26 @@ const Catalog = () => {
   };
 
   const handleMenuItemClick = (column) => {
-    setFilterColumn(column);
-    setSelectedMenuItem(column); // Ustawienie zaznaczonego elementu w menu
+    setSelectedMenuItem(column);
     handleMenuClose();
   };
+
+  const handlePageChange = (event, value) => {
+    setPagination(prevState => ({
+      ...prevState,
+      page: value - 1
+    }));
+    console.log(pagination);
+  }
+
+  const handleFilterBy = (e) => {
+    setPagination(prevState => ({
+      ...prevState,
+      filterBy: selectedMenuItem,
+      filter: filterText,
+      page: 0
+    }));
+  }
 
   return (
     <Grid container justifyContent="center" alignItems="center" spacing={3} >
@@ -61,8 +85,13 @@ const Catalog = () => {
         <TextField
           label="Filtruj"
           variant="outlined"
-          fullWidth
-          onChange={handleFilter}
+          sx={{ width: '80%' }}
+          onChange={(e) => { setFilterText(e.target.value) }}
+        />
+        <TextField
+          sx={{ width: '20%' }}
+          type="submit"
+          onClick={handleFilterBy}
         />
         <Button variant="outlined" onClick={handleMenuOpen}>Filtruj według</Button>
         <Menu
@@ -82,7 +111,7 @@ const Catalog = () => {
           ))}
         </Menu>
       </Grid>
-      {filteredBooks.map((book) => (
+      {books.map((book) => (
         <Grid item xs={12} sm={4} md={2} key={book.bookId} minWidth={300} >
           <Card>
             <CardMedia component="img" alt="book_image" sx={{ objectFit: 'contain', height: '340px' }} image={book.imageUrl} />
@@ -99,6 +128,10 @@ const Catalog = () => {
           </Card>
         </Grid>
       ))}
+      <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center' }}>
+        <Pagination count={totalPages} page={pagination.page + 1} color="primary" onChange={handlePageChange} />
+      </Grid>
+
     </Grid>
   );
 };
