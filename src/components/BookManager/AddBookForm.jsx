@@ -1,9 +1,20 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import Notification from '../Alert/Notification';
 import { TextField, Button, Typography } from '@mui/material';
 import ImageUploader from "../utilities/ImageUploader"
 
 const AddBookForm = () => {
+  const [imageUrl, setImageUrl] = useState('');
+
+  const handleImageUrlChange = (url) => {
+    setImageUrl(url);
+    setBookData(prevState => ({
+      ...prevState,
+      imageUrl: url
+    }));
+  };
+
   const [bookData, setBookData] = useState({
     title: '',
     bookType: '',
@@ -14,6 +25,7 @@ const AddBookForm = () => {
     bookAuthor: '',
     description: ''
   });
+  const [notification, setNotification] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,13 +35,14 @@ const AddBookForm = () => {
     }));
   };
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await axios.post('http://localhost:8080/book/save', bookData);
-      alert('Book added successfully!');
-      // Reset form after successful submission
-      setBookData({
+      setImageUrl(null);
+
+      setBookData({                           // Reset form after successful submission
         bookId: '',
         bookType: '',
         title: '',
@@ -40,14 +53,17 @@ const AddBookForm = () => {
         bookAuthor: '',
         description: ''
       });
+      setNotification({ message: 'Udało się dodać książke.', severity: 'success' });
     } catch (error) {
-      console.error('Error adding book:', error);
-      alert('Failed to add book. Please try again later.');
+      setNotification({ message: 'Nie udało się dodać książki.', severity: 'warning' });
     }
   };
 
   return (
     <>
+      {notification && (
+        <Notification message={notification.message} severity={notification.severity} setOpenProp={setNotification} />
+      )}
       <Typography variant="h4" gutterBottom>Dodaj książkę</Typography>
       <form onSubmit={handleSubmit}>
         <TextField
@@ -82,14 +98,17 @@ const AddBookForm = () => {
           value={bookData.bookCategory}
           onChange={handleChange}
         />
-        <TextField
+        {/* <TextField
           margin="dense"
           fullWidth
           label="URL okładki"
           name="imageUrl"
           value={bookData.imageUrl}
           onChange={handleChange}
-        />
+        /> */}
+        <ImageUploader onImageUrlChange={handleImageUrlChange} />
+        <br></br>
+        {imageUrl && <img src={imageUrl} style={{ maxWidth: '200px', maxHeight: '200px' }} alt="Uploaded" />}
         <TextField
           fullWidth
           margin="dense"

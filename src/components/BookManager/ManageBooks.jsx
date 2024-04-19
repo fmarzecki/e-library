@@ -6,6 +6,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
+import Notification from '../Alert/Notification';
 
 const BookList = () => {
 
@@ -14,6 +15,7 @@ const BookList = () => {
   const [books, setBooks] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
   const [filterText, setFilterText] = useState('');
+  const [notification, setNotification] = useState(null);
   const [editedBook, setEditedBook] = useState({
     bookId: '',
     title: '',
@@ -30,17 +32,19 @@ const BookList = () => {
   const fetchBooks = async () => {
     try {
       const response = await axios.post('http://localhost:8080/book/getAllPaginated', pagination);
-      setBooks(response.data.data.Books.content);
-      setTotalPages(response.data.data.Books.totalPages);
+      setBooks(response.data.data.Books.content);               // zapisz pobrane książki 
+      setTotalPages(response.data.data.Books.totalPages);       // zapisz ilość pobranych stron
+
       console.log(response.data.data.Books.content);
     } catch (error) {
-      console.error('Error fetching books:', error);
-      setBooks([]);
+      setBooks([]);                                             // jeśli nie ma książek, których wyszukujemy, zresetowac stan
       setTotalPages(1);
       setPagination(prevState => ({
         ...prevState,
         page: 0
       }));
+
+      setNotification({ message: 'Nie ma książki której szukasz :(', severity: 'warning' });
     }
   };
 
@@ -51,31 +55,28 @@ const BookList = () => {
   const handleDelete = async (bookId) => {
     try {
       await axios.delete('http://localhost:8080/book/delete', { data: { bookId } });
-      alert('Usunięto książke!');
-      // Refresh the list after deletion
-      fetchBooks();
+      setNotification({ message: 'Udało się usunąć książke.', severity: 'success' }); 
+
+      fetchBooks();                             // Po usunieciu książki odśwież liste
     } catch (error) {
-      console.error('Error deleting book:', error);
-      alert('Nie udało się usunąć książki``.');
+      setNotification({ message: 'Nie udało się usunąć książki.', severity: 'warning' });
     }
   };
 
   const handleSave = async () => {
     try {
       await axios.post('http://localhost:8080/book/save', editedBook);
-      alert('Zaktualizowano książke!');
-      // Refresh the list after update
-      fetchBooks();
-      // Exit edit mode
-      setEditedBook({
+      setNotification({ message: 'Udało się zaktualizować książke.', severity: 'success' });
+
+      fetchBooks();                             // Po zapisaniu książki odśwież liste
+      setEditedBook({                           // Wyjście z trybu edycji, reset stanu
         bookId: '',
         title: '',
         releaseDate: '',
         bookAuthor: ''
       });
     } catch (error) {
-      console.error('Error updating book:', error);
-      alert('Nie udało sie zaktualizować książki.');
+      setNotification({ message: 'Nie udało się zaktualizować książki.', severity: 'warning' });
     }
   };
 
@@ -128,16 +129,21 @@ const BookList = () => {
   }
   return (
         <>
+        {notification && (
+          <Notification message={notification.message} severity={notification.severity} setOpenProp={setNotification}/>
+        )}
+
         <TextField
           label="Filtruj"
           variant="outlined"
-          sx={{width: '80%'}}
+          sx={{width: {xs: '70%'}}}
           onChange={ (e) => {setFilterText(e.target.value)}}
         />
         <TextField 
-        sx={{width: '20%'}}
-        type="submit"
-        onClick={handleFilterBy}
+          sx={{width: {xs:'30%'}}}
+          type="submit"
+          value="Wyślij"
+          onClick={handleFilterBy}
         />
         <Button variant="outlined" onClick={handleMenuOpen}>Filtruj według</Button>
         <Menu
@@ -197,11 +203,9 @@ const BookList = () => {
             ) : (
               <>
                 <ListItemText
-                  
                   primaryTypographyProps={{fontWeight: 'bold', maxWidth: '60%' }}
                   primary={book.title}
                   secondary={`Author: ${book.bookAuthor}`}
-                  
                 />
                 <ListItemSecondaryAction>
                   <IconButton onClick={() => handleDelete(book.bookId)}>
@@ -218,7 +222,7 @@ const BookList = () => {
       </List>
       <Stack spacing={2}>
         <Pagination count={totalPages} page={pagination.page+1} color="primary" onChange={handlePageChange} />
-    </Stack>
+      </Stack>
       </>
   );
 };
