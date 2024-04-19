@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { TextField, Button, Container, Typography } from '@mui/material';
+import Notification from '../Alert/Notification';
 
 const AddBookForm = () => {
   const [bookData, setBookData] = useState({
@@ -13,6 +14,7 @@ const AddBookForm = () => {
     bookAuthor: '',
     description: ''
   });
+  const [notification, setNotification] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,9 +28,8 @@ const AddBookForm = () => {
     e.preventDefault();
     try {
       await axios.post('http://localhost:8080/book/save', bookData);
-      alert('Book added successfully!');
-      // Reset form after successful submission
-      setBookData({
+      
+      setBookData({                           // Reset form after successful submission
         bookId: '',
         bookType: '',
         title: '',
@@ -39,14 +40,17 @@ const AddBookForm = () => {
         bookAuthor: '',
         description: ''
       });
+      setNotification({ message: 'Udało się dodać książke.', severity: 'success' }); 
     } catch (error) {
-      console.error('Error adding book:', error);
-      alert('Failed to add book. Please try again later.');
+      setNotification({ message: 'Nie udało się dodać książki.', severity: 'warning' }); 
     }
   };
 
   return (
     <>
+         {notification && (
+          <Notification message={notification.message} severity={notification.severity} setOpenProp={setNotification}/>
+        )}
       <Typography variant="h4" gutterBottom>Dodaj książkę</Typography>
       <form onSubmit={handleSubmit}>
         <TextField
