@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { TextField, Button, Container, Typography } from '@mui/material';
+import { TextField, Button, Typography } from '@mui/material';
+import ImageUploader from "../utilities/ImageUploader"
 
 const AddBookForm = () => {
   const [bookData, setBookData] = useState({
@@ -108,7 +109,7 @@ const AddBookForm = () => {
           multiline
           rows={4}
         />
-        <Button type="submit" variant="contained" color="primary" sx={{marginTop: '10px'}}>
+        <Button type="submit" variant="contained" color="primary" sx={{ marginTop: '10px' }}>
           Dodaj książke
         </Button>
       </form>

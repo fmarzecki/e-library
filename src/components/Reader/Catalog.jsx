@@ -18,7 +18,7 @@ const Catalog = () => {
     filter: '',
     filterBy: '',
     page: 0,
-    size: 4,
+    size: 8,
   })
 
   const fetchBooks = async () => {
