@@ -1,19 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import Notification from '../Alert/Notification';
-import { TextField, Button, Typography } from '@mui/material';
-import ImageUploader from "../utilities/ImageUploader"
+import { TextField, Button, Typography, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import ImageUploader from "../utilities/ImageUploader";
 
 const AddBookForm = () => {
   const [imageUrl, setImageUrl] = useState('');
-
-  const handleImageUrlChange = (url) => {
-    setImageUrl(url);
-    setBookData(prevState => ({
-      ...prevState,
-      imageUrl: url
-    }));
-  };
+  const [notification, setNotification] = useState(null);
 
   const [bookData, setBookData] = useState({
     title: '',
@@ -25,7 +18,14 @@ const AddBookForm = () => {
     bookAuthor: '',
     description: ''
   });
-  const [notification, setNotification] = useState(null);
+
+  const handleImageUrlChange = (url) => {
+    setImageUrl(url);
+    setBookData(prevState => ({
+      ...prevState,
+      imageUrl: url
+    }));
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -35,15 +35,14 @@ const AddBookForm = () => {
     }));
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log(bookData)
       await axios.post('http://localhost:8080/book/save', bookData);
       setImageUrl(null);
 
       setBookData({                           // Reset form after successful submission
-        bookId: '',
         bookType: '',
         title: '',
         releaseDate: '',
@@ -53,11 +52,15 @@ const AddBookForm = () => {
         bookAuthor: '',
         description: ''
       });
-      setNotification({ message: 'Udało się dodać książke.', severity: 'success' });
+
+      setNotification({ message: 'Udało się dodać książkę.', severity: 'success' });
     } catch (error) {
       setNotification({ message: 'Nie udało się dodać książki.', severity: 'warning' });
     }
   };
+
+  const bookCategories = ["fantasy", "science_fiction", "romance", "thriller", "drama", "horror", "crime", "education"];
+  const bookTypes = ["paperback", "hardcover", "ebook", "audiobook"];
 
   return (
     <>
@@ -74,14 +77,20 @@ const AddBookForm = () => {
           value={bookData.title}
           onChange={handleChange}
         />
-        <TextField
-          margin="dense"
-          fullWidth
-          label="Typ Książki"
-          name="bookType"
-          value={bookData.bookType}
-          onChange={handleChange}
-        />
+        <FormControl fullWidth margin="dense">
+          <InputLabel>Typ Książki</InputLabel>
+          <Select
+            name="bookType"
+            value={bookData.bookType}
+            onChange={handleChange}
+          >
+            {bookTypes.map((type) => (
+              <MenuItem key={type} value={type}>
+                {type}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         <TextField
           margin="dense"
           fullWidth
@@ -90,29 +99,26 @@ const AddBookForm = () => {
           value={bookData.releaseDate}
           onChange={handleChange}
         />
-        <TextField
-          margin="dense"
-          fullWidth
-          label="Kategoria"
-          name="bookCategory"
-          value={bookData.bookCategory}
-          onChange={handleChange}
-        />
-        {/* <TextField
-          margin="dense"
-          fullWidth
-          label="URL okładki"
-          name="imageUrl"
-          value={bookData.imageUrl}
-          onChange={handleChange}
-        /> */}
+        <FormControl fullWidth margin="dense">
+          <InputLabel>Kategoria</InputLabel>
+          <Select
+            name="bookCategory"
+            value={bookData.bookCategory}
+            onChange={handleChange}
+          >
+            {bookCategories.map((category) => (
+              <MenuItem key={category} value={category}>
+                {category}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         <ImageUploader onImageUrlChange={handleImageUrlChange} />
-        <br></br>
+        <br />
         {imageUrl && <img src={imageUrl} style={{ maxWidth: '200px', maxHeight: '200px' }} alt="Uploaded" />}
         <TextField
           fullWidth
           margin="dense"
-          width="30px"
           label="Autor"
           name="bookAuthor"
           value={bookData.bookAuthor}
@@ -129,7 +135,7 @@ const AddBookForm = () => {
           rows={4}
         />
         <Button type="submit" variant="contained" color="primary" sx={{ marginTop: '10px' }}>
-          Dodaj książke
+          Dodaj książkę
         </Button>
       </form>
     </>

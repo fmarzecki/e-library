@@ -9,9 +9,9 @@ import Stack from '@mui/material/Stack';
 import Notification from '../Alert/Notification';
 
 const BookList = () => {
-
+  const [numberOfCopies, setNumberOfCopies] = useState();
   const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedMenuItem, setSelectedMenuItem] = useState(''); 
+  const [selectedMenuItem, setSelectedMenuItem] = useState('');
   const [books, setBooks] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
   const [filterText, setFilterText] = useState('');
@@ -27,23 +27,20 @@ const BookList = () => {
     filterBy: '',
     page: 0,
     size: 4,
-})
+  });
 
   const fetchBooks = async () => {
     try {
       const response = await axios.post('http://localhost:8080/book/getAllPaginated', pagination);
-      setBooks(response.data.data.Books.content);               // zapisz pobrane książki 
-      setTotalPages(response.data.data.Books.totalPages);       // zapisz ilość pobranych stron
-
-      console.log(response.data.data.Books.content);
+      setBooks(response.data.data.Books.content); // Save fetched books
+      setTotalPages(response.data.data.Books.totalPages); // Save total number of pages
     } catch (error) {
-      setBooks([]);                                             // jeśli nie ma książek, których wyszukujemy, zresetowac stan
+      setBooks([]); // Reset state if there are no books matching the search
       setTotalPages(1);
       setPagination(prevState => ({
         ...prevState,
         page: 0
       }));
-
     }
   };
 
@@ -54,9 +51,9 @@ const BookList = () => {
   const handleDelete = async (bookId) => {
     try {
       await axios.delete('http://localhost:8080/book/delete', { data: { bookId } });
-      setNotification({ message: 'Udało się usunąć książke.', severity: 'success' }); 
+      setNotification({ message: 'Udało się usunąć książke.', severity: 'success' });
 
-      fetchBooks();                             // Po usunieciu książki odśwież liste
+      fetchBooks(); // Refresh the list after deleting a book
     } catch (error) {
       setNotification({ message: 'Nie udało się usunąć książki.', severity: 'warning' });
     }
@@ -67,13 +64,30 @@ const BookList = () => {
       await axios.post('http://localhost:8080/book/save', editedBook);
       setNotification({ message: 'Udało się zaktualizować książke.', severity: 'success' });
 
-      fetchBooks();                             // Po zapisaniu książki odśwież liste
-      setEditedBook({                           // Wyjście z trybu edycji, reset stanu
+      const bookCopyRequests = [];
+      for (let i = 0; i < numberOfCopies; i++) {
+        const bookCopy = {
+          rentalStatus: 'Free',
+          shelfPlace: '130',
+          dateOfPurchase: editedBook.releaseDate,
+          qualityStatus: "Bardzo dobry",
+          book: { bookId: editedBook.bookId },
+          addedBy: { workerId: 1 }
+        };
+        bookCopyRequests.push(axios.post('http://localhost:8080/warehouseManager/addBookCopy', bookCopy));
+      }
+
+      await Promise.all(bookCopyRequests);
+
+      fetchBooks(); // Refresh the list after saving the book and adding copies
+      setEditedBook({ // Exit edit mode, reset state
         bookId: '',
         title: '',
         releaseDate: '',
         bookAuthor: ''
       });
+
+      setNumberOfCopies(0); // Reset the number of copies
     } catch (error) {
       setNotification({ message: 'Nie udało się zaktualizować książki.', severity: 'warning' });
     }
@@ -91,11 +105,14 @@ const BookList = () => {
     }));
   };
 
+  const handleCopiesChange = (e) => {
+    setNumberOfCopies(Number(e.target.value));
+  };
+
   const columns = [
     { field: 'title', headerName: 'Tytuł', width: 130 },
     { field: 'bookAuthor', headerName: 'Autor', width: 130 },
   ];
-
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -113,54 +130,54 @@ const BookList = () => {
   const handlePageChange = (event, value) => {
     setPagination(prevState => ({
       ...prevState,
-      page: value-1
+      page: value - 1
     }));
-    console.log(pagination);
-  }
+  };
 
   const handleFilterBy = (e) => {
     setPagination(prevState => ({
-        ...prevState,
-        filterBy: selectedMenuItem,
-        filter: filterText,
-        page: 0
-      }));
-  }
-  return (
-        <>
-        {notification && (
-          <Notification message={notification.message} severity={notification.severity} setOpenProp={setNotification}/>
-        )}
+      ...prevState,
+      filterBy: selectedMenuItem,
+      filter: filterText,
+      page: 0
+    }));
+  };
 
-        <TextField
-          label="Filtruj"
-          variant="outlined"
-          sx={{width: {xs: '70%'}}}
-          onChange={ (e) => {setFilterText(e.target.value)}}
-        />
-        <TextField 
-          sx={{width: {xs:'30%'}}}
-          type="submit"
-          value="Wyślij"
-          onClick={handleFilterBy}
-        />
-        <Button variant="outlined" onClick={handleMenuOpen}>Filtruj według</Button>
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleMenuClose}
-        >
-          {columns.map((column) => (
-            <MenuItem
-              key={column.field}
-              onClick={() => handleMenuItemClick(column.field)}
-              selected={selectedMenuItem === column.field} // Podświetlenie wybranego elementu
-              sx={{ '&.Mui-selected': { backgroundColor: 'rgba(0, 0, 255, 0.18)' } }} // Zmiana koloru podświetlenia
-            >
-              {column.headerName}
-            </MenuItem>
-          ))}
-        </Menu>
+  return (
+    <>
+      {notification && (
+        <Notification message={notification.message} severity={notification.severity} setOpenProp={setNotification} />
+      )}
+
+      <TextField
+        label="Filtruj"
+        variant="outlined"
+        sx={{ width: { xs: '70%' } }}
+        onChange={(e) => { setFilterText(e.target.value); }}
+      />
+      <TextField
+        sx={{ width: { xs: '30%' } }}
+        type="submit"
+        value="Wyślij"
+        onClick={handleFilterBy}
+      />
+      <Button variant="outlined" onClick={handleMenuOpen}>Filtruj według</Button>
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+      >
+        {columns.map((column) => (
+          <MenuItem
+            key={column.field}
+            onClick={() => handleMenuItemClick(column.field)}
+            selected={selectedMenuItem === column.field} // Highlight the selected item
+            sx={{ '&.Mui-selected': { backgroundColor: 'rgba(0, 0, 255, 0.18)' } }} // Change highlight color
+          >
+            {column.headerName}
+          </MenuItem>
+        ))}
+      </Menu>
       <Typography m={2} variant="h4" gutterBottom>Lista książek</Typography>
       <List>
         {books.map((book) => (
@@ -195,6 +212,14 @@ const BookList = () => {
                   value={editedBook.imageUrl}
                   onChange={handleChange}
                 />
+                <TextField
+                  fullWidth
+                  label="Dodaj Kopie"
+                  type="number"
+                  name="numberOfCopies"
+                  value={numberOfCopies}
+                  onChange={handleCopiesChange}
+                />
                 <IconButton onClick={handleSave}>
                   <SaveIcon />
                 </IconButton>
@@ -202,7 +227,7 @@ const BookList = () => {
             ) : (
               <>
                 <ListItemText
-                  primaryTypographyProps={{fontWeight: 'bold', maxWidth: '60%' }}
+                  primaryTypographyProps={{ fontWeight: 'bold', maxWidth: '60%' }}
                   primary={book.title}
                   secondary={`Author: ${book.bookAuthor}`}
                 />
@@ -220,9 +245,9 @@ const BookList = () => {
         ))}
       </List>
       <Stack spacing={2}>
-        <Pagination count={totalPages} page={pagination.page+1} color="primary" onChange={handlePageChange} />
+        <Pagination count={totalPages} page={pagination.page + 1} color="primary" onChange={handlePageChange} />
       </Stack>
-      </>
+    </>
   );
 };
 

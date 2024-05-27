@@ -17,6 +17,9 @@ import LoginSignup from './components/Authentication/LoginSignup';
 import BookManagerDashboard from './components/BookManager/BookManagerDashboard';
 import AddBookForm from './components/BookManager/AddBookForm';
 import ManageBooks from './components/BookManager/ManageBooks';
+import WorkersList from './components/EmployeeManager/WorkersList';
+import EmployeeManagerDashboard from './components/EmployeeManager/EmployeeManagerDashboard';
+import WarehouseManagersList from './components/EmployeeManager/WarehouseManagerList';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -38,7 +41,7 @@ const router = createBrowserRouter([
 
   },
   {
-    path: '/authorization',
+    path: '/authentication',
     element: <LoginSignup />,
 
   },
@@ -89,6 +92,20 @@ const router = createBrowserRouter([
       {
         path: '/bookManagerDashboard/rentals',
         element: <Rentals />,
+      },
+    ]
+  },
+  {
+    path: '/employeeManagerDashboard',
+    element: <EmployeeManagerDashboard />,
+    children: [
+      {
+        path: '/employeeManagerDashboard/workers',
+        element: <WorkersList/>,
+      },
+      {
+        path: '/employeeManagerDashboard/managers',
+        element: <WarehouseManagersList />,
       },
     ]
   }
