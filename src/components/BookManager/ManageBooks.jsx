@@ -44,7 +44,6 @@ const BookList = () => {
         page: 0
       }));
 
-      setNotification({ message: 'Nie ma książki której szukasz :(', severity: 'warning' });
     }
   };
 
