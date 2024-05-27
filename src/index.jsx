@@ -20,6 +20,8 @@ import ManageBooks from './components/BookManager/ManageBooks';
 import WorkersList from './components/EmployeeManager/WorkersList';
 import EmployeeManagerDashboard from './components/EmployeeManager/EmployeeManagerDashboard';
 import WarehouseManagersList from './components/EmployeeManager/WarehouseManagerList';
+import EmployeeDashboard from './components/Employee/EmployeeDashboard'
+import ManageNews from './components/Employee/ManageNews';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -70,6 +72,17 @@ const router = createBrowserRouter([
         path: '/readerDashboard/history',
         element: <RentalsHistory />,
       }
+    ],
+  }, 
+
+  {
+    path: '/employeeDashboard',
+    element: <EmployeeDashboard />,
+    children: [
+      {
+        path: '/employeeDashboard/manageNews',
+        element: <ManageNews />,
+      },
     ],
   }, 
 
