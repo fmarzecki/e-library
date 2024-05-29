@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { List, ListItem, ListItemText, Typography, CircularProgress, Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { List, ListItem, ListItemText, Typography, CircularProgress, Button, Dialog, DialogTitle, DialogContent, DialogActions, Grid, Paper } from '@mui/material';
 import Notification from '../Alert/Notification';
 
 const ManageRentals = () => {
   const [readers, setReaders] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [borrowings, setBorrowings] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedBorrowing, setSelectedBorrowing] = useState(null);
@@ -20,28 +19,24 @@ const ManageRentals = () => {
       } catch (error) {
         setNotification({ message: 'Nie udało się pobrać użytkowników.', severity: 'warning' });
       } finally {
-        setLoading(false);
       }
     };
     fetchReaders();
   }, []);
 
   const handleUserClick = async (userEmail) => {
-    setLoading(true);
     try {
         console.log(userEmail)
       const response = await axios.get(`http://localhost:8080/worker/getRentalsForUser/email=${userEmail}`);
-      setBorrowings(response.data);
+      setBorrowings(response.data.data["Rentals: "]);
       setSelectedUser(userEmail);
     } catch (error) {
       setNotification({ message: 'Nie udało się pobrać wypożyczeń.', severity: 'warning' });
     } finally {
-      setLoading(false);
     }
   };
 
   const handleBorrowingReturn = async (borrowingId) => {
-    setLoading(true);
     try {
       await axios.post(`http://localhost:8080/borrowings/${borrowingId}/return`);
       setNotification({ message: 'Borrowing marked as returned', severity: 'success' });
@@ -49,49 +44,58 @@ const ManageRentals = () => {
     } catch (error) {
       setNotification({ message: 'Failed to mark borrowing as returned', severity: 'error' });
     } finally {
-      setLoading(false);
       setDialogOpen(false);
     }
   };
 
-  if (loading) {
-    return <CircularProgress />;
-  }
 
   return (
     <>
       {notification && (
         <Notification message={notification.message} severity={notification.severity} setOpenProp={setNotification} />
       )}
-      <Typography variant="h5" gutterBottom>User List</Typography>
-      <List>
-        {readers.map((reader) => (
-          <ListItem key={reader.readerId} button onClick={() => handleUserClick(reader.user.email)}>
-            <ListItemText 
-              primary={`${reader.user.name} ${reader.user.surname}`}
-              secondary={`Email: ${reader.user.email}`}
-            />
-          </ListItem>
-        ))}
-      </List>
-      {selectedUser && (
-        <>
-          <Typography variant="h6" gutterBottom>Borrowings of Selected User</Typography>
-          <List>
-            {borrowings.map((borrowing) => (
-              <ListItem key={borrowing.id}>
-                <ListItemText 
-                  primary={`Book: ${borrowing.bookTitle}`}
-                  secondary={`Borrowed on: ${borrowing.borrowDate}`}
-                />
-                <Button variant="contained" color="primary" onClick={() => { setSelectedBorrowing(borrowing.id); setDialogOpen(true); }}>
-                  Mark as Returned
-                </Button>
-              </ListItem>
-            ))}
-          </List>
-        </>
-      )}
+       <Grid container>
+        <Grid item xs={12} sm={12} md={12} sx={{ marginBottom: "20px"}} minWidth={200}>
+          <Paper sx={{ padding: "1rem", margin: 'auto', width: "80%", }}>
+          <Typography variant="h5" gutterBottom>Lista czytelników:</Typography>
+            <List>
+                {readers.map((reader) => (
+                <ListItem key={reader.readerId} button onClick={() => handleUserClick(reader.user.email)}>
+                    <ListItemText 
+                    primary={`${reader.user.name} ${reader.user.surname}`}
+                    secondary={`Email: ${reader.user.email}`}
+                    />
+                </ListItem>
+                ))}
+            </List>
+          </Paper>
+        </Grid> 
+          {selectedUser && (
+            <>
+            <Grid item xs={12} sm={12} md={12} sx={{ marginBottom: "20px"}} minWidth={200}>
+              <Paper sx={{ padding: "1rem", margin: 'auto', width: "80%", }}>
+                <Typography variant="h6" gutterBottom>Wypożyczenia czytelnika:</Typography>
+                <List>
+                  {borrowings.map((borrowing) => (
+                    <ListItem key={borrowing.rentalId}>
+                      <ListItemText 
+                        primary={`Book: ${borrowing.bookCopy.book.title}`}
+                        secondary={`Borrowed on: ${borrowing.rentalDate}`}
+                      />
+                      <Button variant="contained" color="primary" onClick={() => { setSelectedBorrowing(borrowing.rentalId); setDialogOpen(true); }}>
+                        Mark as Returned
+                      </Button>
+                    </ListItem>
+                  ))}
+              </List>
+              </Paper>
+            </Grid>
+            </>
+          )}
+          
+      </Grid>
+      
+      
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
         <DialogTitle>Confirm Return</DialogTitle>
         <DialogContent>
