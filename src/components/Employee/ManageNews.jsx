@@ -8,9 +8,6 @@ import {
   TextField,
   Button,
   IconButton,
-  List,
-  ListItem,
-  ListItemText,
   ListItemSecondaryAction,
   Paper,
   Grid
@@ -23,7 +20,7 @@ import Notification from '../Alert/Notification';
 
 const ManageNews = () => {
   const [news, setNews] = useState([]);
-  const [editingPost, setEditingPost] = useState(null);
+  const [editingPost, setEditingPost] = useState({ workerId: 1, postId: 1, name: '', contents: '', imageUrl: '' });
   const [newPost, setNewPost] = useState({ workerId: 1, name: '', contents: '', imageUrl: '' });
   const [notification, setNotification] = useState(null);
   const [editingPostIndex, setEditingPostIndex] = useState(null);
@@ -43,23 +40,28 @@ const ManageNews = () => {
   }, []);
 
 
-  const handleDelete = async (postId) => {
+  const handleDelete = async (idPost) => {
     try {
-      console.log("Usuwam")
+      console.log(idPost)
+      await axios.delete(`http://localhost:8080/worker/deleteNewsPost/postId=${idPost}`);
+      setNotification({ message: 'Udało się usunąć ogłoszenie.', severity: 'success' });
     } catch (error) {
+      setNotification({ message: 'Nie udało się zaktualizować ogłoszenie.', severity: 'warning' });
       console.error(error);
     }
   };
 
+
   const handleSave = async () => {
     try {
-      await axios.post('http://localhost:8080/worker/addNewsPost', editingPost);
+      await axios.put('http://localhost:8080/worker/updateNewsPost', editingPost);
       setNotification({ message: 'Udało się zaktualizować ogłoszenie.', severity: 'success' });
       fetchNews();
-      setEditingPost({
+      setEditingPost(prevState => ({
+        ...prevState,
         contents: '',
-        name: ''
-      })
+        name: ''}));
+      setEditingPostIndex(-1);
     } catch (error) {
       console.error(error);
     }
@@ -67,7 +69,11 @@ const ManageNews = () => {
 
   const handleEdit = (index, post) => {
     setEditingPostIndex(index);
-    setEditingPost(post);
+    setEditingPost(prevState => ({
+      ...prevState,
+      postId: index,
+      contents: post.contents,
+      name: post.name}));
   };
 
   const handleInputChange = (event, field) => {
@@ -141,18 +147,18 @@ const ManageNews = () => {
             Ogłoszenia
           </Typography>
           <div>
-          {news.map((post, index) => (
-            <Accordion key={index}>
+          {news.map((post) => (
+            <Accordion key={post.postId}>
               <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
-                aria-controls={`panel${index}-content`}
-                id={`panel${index}-header`}
+                aria-controls={`panel${post.postId}-content`}
+                id={`panel${post.postId}-header`}
                 sx={{ fontWeight: 'bold' }}
               >
                 {post.name}
               </AccordionSummary>
               <AccordionDetails>
-                {editingPostIndex === index ? (
+                {editingPostIndex === post.postId ? (
                   <div>
                     <TextField
                       fullWidth
@@ -177,10 +183,10 @@ const ManageNews = () => {
                   <div>
                     <Typography>{post.contents}</Typography>
                     <ListItemSecondaryAction>
-                      <IconButton onClick={() => handleDelete(post.newsPostId)} edge="end" aria-label="delete">
+                      <IconButton onClick={() => handleDelete(post.postId)} edge="end" aria-label="delete">
                         <DeleteIcon />
                       </IconButton>
-                      <IconButton onClick={() => handleEdit(index, post)} edge="end" aria-label="edit">
+                      <IconButton onClick={() => handleEdit(post.postId, post)} edge="end" aria-label="edit">
                         <EditIcon />
                       </IconButton>
                     </ListItemSecondaryAction>
