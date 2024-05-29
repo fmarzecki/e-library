@@ -50,8 +50,8 @@ const EmployeeDashboard = () => {
           <ThemeProvider theme={theme}>
             {/* <Button component={NavLink} to={"/readerDashboard/rentals"} fullWidth><BookmarkAddedIcon />&nbsp; Wypożyczenia</Button>
             <Button component={NavLink} to={"/readerDashboard/history"} fullWidth ><HistoryIcon />&nbsp; Historia</Button>
-            <Button component={NavLink} to={"/readerDashboard/account"} fullWidth><AccountCircleIcon />&nbsp; Konto</Button>
-            <Button component={NavLink} to={"/readerDashboard/catalog"} fullWidth><MenuBookIcon />&nbsp; Katalog</Button> */}
+            <Button component={NavLink} to={"/readerDashboard/account"} fullWidth><AccountCircleIcon />&nbsp; Konto</Button>*/
+            <Button component={NavLink} to={"/employeeDashboard/manageRentals"} fullWidth><MenuBookIcon />&nbsp; Wypożyczenia</Button> }
             <Button component={NavLink} to={"/employeeDashboard/manageNews"} fullWidth><CircleNotificationsIcon />&nbsp; Ogłoszenia</Button>
           </ThemeProvider>
         </Grid>

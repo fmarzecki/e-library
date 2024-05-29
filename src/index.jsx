@@ -23,6 +23,7 @@ import WarehouseManagersList from './components/EmployeeManager/WarehouseManager
 import EmployeeDashboard from './components/Employee/EmployeeDashboard'
 import ManageNews from './components/Employee/ManageNews';
 import AddWorker from './components/EmployeeManager/AddWorker';
+import ManageRentals from './components/Employee/ManageRentals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -83,6 +84,10 @@ const router = createBrowserRouter([
       {
         path: '/employeeDashboard/manageNews',
         element: <ManageNews />,
+      },
+      {
+        path: '/employeeDashboard/manageRentals',
+        element: <ManageRentals />,
       },
     ],
   }, 
