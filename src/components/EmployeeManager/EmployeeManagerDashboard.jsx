@@ -50,6 +50,7 @@ const EmployeeManagerDashboard = () => {
           <ThemeProvider theme={theme}>
             <Button component={NavLink} to={"/employeeManagerDashboard/workers"} fullWidth><BookmarkAddedIcon />&nbsp; Lista Pracowników</Button>
             <Button component={NavLink} to={"/employeeManagerDashboard/managers"} fullWidth ><HistoryIcon />&nbsp; Lista Managerów</Button>
+            <Button component={NavLink} to={"/employeeManagerDashboard/addWorker"} fullWidth ><HistoryIcon />&nbsp; Dodaj Pracownika</Button>
           </ThemeProvider>
         </Grid>
         <Grid item xs={12} md sx={{ bgcolor: "rgb(255, 255, 255)", borderRadius: "20px", margin: "40px 20px" }}>

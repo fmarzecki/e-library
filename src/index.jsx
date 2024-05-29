@@ -22,6 +22,7 @@ import EmployeeManagerDashboard from './components/EmployeeManager/EmployeeManag
 import WarehouseManagersList from './components/EmployeeManager/WarehouseManagerList';
 import EmployeeDashboard from './components/Employee/EmployeeDashboard'
 import ManageNews from './components/Employee/ManageNews';
+import AddWorker from './components/EmployeeManager/AddWorker';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -119,6 +120,10 @@ const router = createBrowserRouter([
       {
         path: '/employeeManagerDashboard/managers',
         element: <WarehouseManagersList />,
+      },
+      {
+        path: '/employeeManagerDashboard/addWorker',
+        element: <AddWorker />,
       },
     ]
   }

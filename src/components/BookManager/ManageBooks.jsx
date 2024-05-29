@@ -64,20 +64,15 @@ const BookList = () => {
       await axios.post('http://localhost:8080/book/save', editedBook);
       setNotification({ message: 'Udało się zaktualizować książke.', severity: 'success' });
 
-      const bookCopyRequests = [];
-      for (let i = 0; i < numberOfCopies; i++) {
-        const bookCopy = {
-          rentalStatus: 'Free',
-          shelfPlace: '130',
-          dateOfPurchase: editedBook.releaseDate,
-          qualityStatus: "Bardzo dobry",
-          book: { bookId: editedBook.bookId },
-          addedBy: { workerId: 1 }
+      if (numberOfCopies > 0) {
+        const addCopiesEndpoint = `http://localhost:8080/warehouseManager/addBookCopy/copies=${numberOfCopies}`;
+        const bookCopyPayload = {
+          bookId: editedBook.bookId,
+          shelfPlace: '10', // Set the appropriate shelf place
+          workerId: 1, // Set the appropriate workerId
         };
-        bookCopyRequests.push(axios.post('http://localhost:8080/warehouseManager/addBookCopy', bookCopy));
+        await axios.post(addCopiesEndpoint, bookCopyPayload);
       }
-
-      await Promise.all(bookCopyRequests);
 
       fetchBooks(); // Refresh the list after saving the book and adding copies
       setEditedBook({ // Exit edit mode, reset state
