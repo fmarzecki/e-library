@@ -8,6 +8,7 @@ const RentalsHistory = () => {
     const [pagination, setPagination] = useState({
         page: 0,
         size: 5,
+        filterBy: 'inactive'
     });
     const [rowCount, setRowCount] = useState(0);
 
@@ -41,10 +42,11 @@ const RentalsHistory = () => {
     }, [pagination]);
 
     const handlePaginationChange = (model) => {
-        setPagination({
+        setPagination(prevState => ({
+            ...prevState,
             page: model.page,
             size: model.pageSize,
-        });
+        }));
     };
 
     return (
@@ -69,14 +71,10 @@ const RentalsHistory = () => {
                         pageSizeOptions={[3, 5, 10]}
                         rows={rentals}
                         columns={[
-                            { field: 'id', headerName: 'ID', width: 90 },
-                            { field: 'bookTitle', headerName: 'Book Title', width: 150 },
-                            { field: 'rentalDate', headerName: 'Rental Date', width: 150 },
-                            { field: 'rentalReturnDate', headerName: 'Return Date', width: 150 },
-                            { field: 'status', headerName: 'Status', width: 100 },
-                            { field: 'readerName', headerName: 'Reader Name', width: 150 },
-                            { field: 'readerEmail', headerName: 'Reader Email', width: 200 },
-                            { field: 'author', headerName: 'Author', width: 150 },
+                            { field: 'bookTitle', headerName: 'Tytuł', flex: 15 },
+                            { field: 'author', headerName: 'Autor', flex: 15 },
+                            { field: 'rentalDate', headerName: 'Data wypożyczenia', flex: 10 },
+                            { field: 'rentalReturnDate', headerName: 'Data zwrotu', flex: 10 },
                         ]}
                         pagination
                         paginationMode="server"
