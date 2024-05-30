@@ -15,14 +15,15 @@ const Catalog = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [filterText, setFilterText] = useState('');
   const [pagination, setPagination] = useState({
+    size: 8,
+    page: 0,
     filter: '',
     filterBy: '',
-    page: 0,
-    size: 8,
   })
 
   const fetchBooks = async () => {
     try {
+      console.log(pagination)
       const response = await axios.post('http://localhost:8080/book/getAllPaginated', pagination);
       setBooks(response.data.data.Books.content);
       setTotalPages(response.data.data.Books.totalPages);

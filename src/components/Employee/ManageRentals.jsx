@@ -38,11 +38,10 @@ const ManageRentals = () => {
 
   const handleBorrowingReturn = async (borrowingId) => {
     try {
-      await axios.post(`http://localhost:8080/borrowings/${borrowingId}/return`);
-      setNotification({ message: 'Borrowing marked as returned', severity: 'success' });
-      setBorrowings(borrowings.filter(borrowing => borrowing.id !== borrowingId));
+      await axios.patch(`http://localhost:8080/worker/return`, {rentalId: borrowingId});
+      setNotification({ message: 'Udało się zwrócić książke', severity: 'success' });
     } catch (error) {
-      setNotification({ message: 'Failed to mark borrowing as returned', severity: 'error' });
+      setNotification({ message: 'Nie udało się zwrócić książki', severity: 'warning' });
     } finally {
       setDialogOpen(false);
     }
@@ -82,8 +81,8 @@ const ManageRentals = () => {
                         primary={`Book: ${borrowing.bookCopy.book.title}`}
                         secondary={`Borrowed on: ${borrowing.rentalDate}`}
                       />
-                      <Button variant="contained" color="primary" onClick={() => { setSelectedBorrowing(borrowing.rentalId); setDialogOpen(true); }}>
-                        Mark as Returned
+                      <Button variant="outlined" color="secondary" onClick={() => { setSelectedBorrowing(borrowing.rentalId); setDialogOpen(true); }}>
+                        Zwrot
                       </Button>
                     </ListItem>
                   ))}
@@ -97,13 +96,13 @@ const ManageRentals = () => {
       
       
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
-        <DialogTitle>Confirm Return</DialogTitle>
+        <DialogTitle>Potwierdzenie zwrotu</DialogTitle>
         <DialogContent>
-          <Typography>Are you sure you want to mark this borrowing as returned?</Typography>
+          <Typography>Proszę potwierdź swoje działanie</Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDialogOpen(false)} color="primary">Cancel</Button>
-          <Button onClick={() => handleBorrowingReturn(selectedBorrowing)} color="primary">Confirm</Button>
+          <Button onClick={() => setDialogOpen(false)} color="primary">Anuluj</Button>
+          <Button onClick={() => handleBorrowingReturn(selectedBorrowing)} color="primary">Potwierdź</Button>
         </DialogActions>
       </Dialog>
     </>
