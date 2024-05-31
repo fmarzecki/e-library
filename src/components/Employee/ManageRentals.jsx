@@ -78,8 +78,8 @@ const ManageRentals = () => {
                   {borrowings.map((borrowing) => (
                     <ListItem key={borrowing.rentalId}>
                       <ListItemText 
-                        primary={`Book: ${borrowing.bookCopy.book.title}`}
-                        secondary={`Borrowed on: ${borrowing.rentalDate}`}
+                        primary={`Tytuł: ${borrowing.bookCopy.book.title}`}
+                        secondary={`Data wypożyczenia: ${borrowing.rentalDate}`}
                       />
                       <Button variant="outlined" color="secondary" onClick={() => { setSelectedBorrowing(borrowing.rentalId); setDialogOpen(true); }}>
                         Zwrot
