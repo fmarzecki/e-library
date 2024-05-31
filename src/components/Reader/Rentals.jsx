@@ -12,10 +12,11 @@ const Rentals = () => {
   const [pagination, setPagination] = useState({
     page: 0,
     size: 5,
-    filterBy: ''
+    filterBy: 'active'
   });
   const [rowCount, setRowCount] = useState(0);
-  const [selectedRowIds, setSelectedRowIds] = useState([]);
+  const [selectedRowIds, setSelectedRowIds] = useState(null);
+  const [selectedRowData, setSelectedRowData] = useState(null);
   const userEmail = "ff@wp.pl";
   const [notification, setNotification] = useState(null);
 
@@ -53,21 +54,20 @@ const Rentals = () => {
         page: model.page,
         size: model.pageSize,
     }));
-};
+  };
 
   const handleProlongClick = async () => {
-    try{
+    try {
       let temp = {
         rentalId: selectedRowIds,
         prolongationInWeeks: 6,
-      }
-      console.log(temp)
+      };
+      console.log(temp);
       await axios.patch(`http://localhost:8080/book/prolongateRental`, temp);
       setNotification({ message: 'Udało się prolongować książke.', severity: 'success' });
-    }
-    catch(error){
+    } catch (error) {
       setNotification({ message: 'Nie udało się prolongować książki', severity: 'warning' });
-      console.error(error)
+      console.error(error);
     }
   };
 
@@ -80,7 +80,7 @@ const Rentals = () => {
         <Typography variant="h6" gutterBottom>
           Wypożyczone książki
         </Typography>
-        <div style={{ height: 400, width: '100%' }}>
+        <div>
           <DataGrid
             slotProps={{
               pagination: {
@@ -111,14 +111,19 @@ const Rentals = () => {
             rowsPerPageOptions={[3, 5, 10]}
             onPaginationModelChange={handlePaginationChange}
             getRowId={(row) => row.id}
-            onRowSelectionModelChange={(newSelection) => setSelectedRowIds(newSelection[0])}
+            onRowSelectionModelChange={(newSelection) => {
+              const selectedId = newSelection[0];
+              setSelectedRowIds(selectedId);
+              const selectedData = rentals.find(row => row.id === selectedId);
+              setSelectedRowData(selectedData);
+            }}
           />
         </div>
         <Button
           variant="outlined"
           color='secondary'
           onClick={handleProlongClick}
-          disabled={!selectedRowIds}
+          disabled={!selectedRowData || selectedRowData.is_prolonged}
         >
           Prolonguj
         </Button>
