@@ -35,11 +35,14 @@ const AddBookForm = () => {
     }));
   };
 
+  let apiKey = localStorage.getItem('apiKey')
+  let user = JSON.parse(localStorage.getItem('user'))
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       console.log(bookData)
-      await axios.post('http://localhost:8080/book/save', bookData);
+      await axios.post(`http://localhost:8080/book/save/apiKey=${apiKey}`, bookData);
       setImageUrl(null);
 
       setBookData({                           // Reset form after successful submission

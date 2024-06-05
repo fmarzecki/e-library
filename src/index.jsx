@@ -93,23 +93,23 @@ const router = createBrowserRouter([
   }, 
 
   {
-    path: '/bookManagerDashboard',
+    path: '/warehouseManagerDashboard',
     element: <BookManagerDashboard />,
     children: [
       {
-        path: '/bookManagerDashboard/addBook',
+        path: '/warehouseManagerDashboard/addBook',
         element: <AddBookForm />,
       },
       {
-        path: '/bookManagerDashboard/books',
+        path: '/warehouseManagerDashboard/books',
         element: <ManageBooks />,
       },
       {
-        path: '/bookManagerDashboard/catalog',
+        path: '/warehouseManagerDashboard/catalog',
         element: <Catalog />,
       },
       {
-        path: '/bookManagerDashboard/rentals',
+        path: '/warehouseManagerDashboard/rentals',
         element: <Rentals />,
       },
     ]

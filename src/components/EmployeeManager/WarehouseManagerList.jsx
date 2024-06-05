@@ -16,11 +16,11 @@ const WarehouseManagersList = () => {
     payAccountNumber: '',
     address: ''
   });
-
+  let apiKey = localStorage.getItem('apiKey')
   useEffect(() => {
     const fetchManagers = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/employeeManager/getAllWarehouseManagers');
+        const response = await axios.get(`http://localhost:8080/employeeManager/getAllWarehouseManagers/apiKey=${apiKey}`);
         setManagers(response.data.data.WarehouseManagers);
       } catch (error) {
         setNotification({ message: 'Failed to fetch warehouse managers', severity: 'error' });
@@ -45,7 +45,7 @@ const WarehouseManagersList = () => {
 
   const handleSave = async () => {
     try {
-      await axios.patch('http://localhost:8080/employeeManager/updateWarehouseManager', editedManager);
+      await axios.patch(`http://localhost:8080/employeeManager/updateWarehouseManager/apiKey=${apiKey}`, editedManager);
       setNotification({ message: 'Manager updated successfully', severity: 'success' });
 
       setManagers(managers.map(manager => manager.wareManId === editedManager.wareManId ? editedManager : manager));
@@ -64,7 +64,7 @@ const WarehouseManagersList = () => {
     try {
       await axios({
         method: 'delete',
-        url: 'http://localhost:8080/employeeManager/deleteWorker',
+        url: `http://localhost:8080/employeeManager/deleteWorker/apiKey=${apiKey}`,
         data: { workerId: wareManId } // Correctly formatted request payload
       });
       setNotification({ message: 'Manager deleted successfully', severity: 'success' });

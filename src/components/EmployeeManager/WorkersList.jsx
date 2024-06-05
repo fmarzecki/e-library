@@ -16,11 +16,13 @@ const WorkersList = () => {
     payAccountNumber: '',
     address: ''
   });
+  let apiKey = localStorage.getItem('apiKey')
 
   useEffect(() => {
     const fetchWorkers = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/employeeManager/getAllWorkers');
+
+        const response = await axios.get(`http://localhost:8080/employeeManager/getAllWorkers/apiKey=${apiKey}`);
         setWorkers(response.data.data.Workers);
       } catch (error) {
         setNotification({ message: 'Failed to fetch workers', severity: 'error' });
@@ -45,7 +47,7 @@ const WorkersList = () => {
 
   const handleSave = async () => {
     try {
-      await axios.patch('http://localhost:8080/employeeManager/updateWorker', editedWorker);
+      await axios.patch(`http://localhost:8080/employeeManager/updateWorker/apiKey=${apiKey}`, editedWorker);
       setNotification({ message: 'Worker updated successfully', severity: 'success' });
 
       setWorkers(workers.map(worker => worker.workerId === editedWorker.workerId ? editedWorker : worker));
@@ -64,7 +66,7 @@ const WorkersList = () => {
     try {
       await axios({
         method: 'delete',
-        url: 'http://localhost:8080/employeeManager/deleteWorker',
+        url: `http://localhost:8080/employeeManager/deleteWorker/apiKey=${apiKey}`,
         data: {
           workerId: workerId
         }

@@ -28,10 +28,12 @@ const BookList = () => {
     page: 0,
     size: 4,
   });
+  let apiKey = localStorage.getItem('apiKey')
+  let user = JSON.parse(localStorage.getItem('user'))
 
   const fetchBooks = async () => {
     try {
-      const response = await axios.post('http://localhost:8080/book/getAllPaginated', pagination);
+      const response = await axios.get(`http://localhost:8080/book/getAllPaginated/apiKey=${apiKey}`, pagination);
       setBooks(response.data.data.Books.content); // Save fetched books
       setTotalPages(response.data.data.Books.totalPages); // Save total number of pages
     } catch (error) {
@@ -50,7 +52,7 @@ const BookList = () => {
 
   const handleDelete = async (bookId) => {
     try {
-      await axios.delete('http://localhost:8080/book/delete', { data: { bookId } });
+      await axios.delete(`http://localhost:8080/book/delete/apiKey=${apiKey}`, { data: { bookId } });
       setNotification({ message: 'Udało się usunąć książke.', severity: 'success' });
 
       fetchBooks(); // Refresh the list after deleting a book
@@ -61,11 +63,11 @@ const BookList = () => {
 
   const handleSave = async () => {
     try {
-      await axios.post('http://localhost:8080/book/save', editedBook);
+      await axios.post(`http://localhost:8080/book/save/apiKey=${apiKey}`, editedBook);
       setNotification({ message: 'Udało się zaktualizować książke.', severity: 'success' });
 
       if (numberOfCopies > 0) {
-        const addCopiesEndpoint = `http://localhost:8080/warehouseManager/addBookCopy/copies=${numberOfCopies}`;
+        const addCopiesEndpoint = `http://localhost:8080/warehouseManager/addBookCopy/copies=${numberOfCopies}/apiKey=${apiKey}`;
         const bookCopyPayload = {
           bookId: editedBook.bookId,
           shelfPlace: '10', // Set the appropriate shelf place

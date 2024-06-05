@@ -53,6 +53,8 @@ const LoginSignup = () => {
           setNotification({ message: 'Udało się zalogować.', severity: 'success' });
           localStorage.setItem('apiKey', data.apiKey);
           localStorage.setItem('userType', data.userType);
+          localStorage.setItem('user', JSON.stringify(data));
+          console.log(data)
           console.log(localStorage.getItem('apiKey'))
           switch (localStorage.getItem('userType')) {
             case 'reader':

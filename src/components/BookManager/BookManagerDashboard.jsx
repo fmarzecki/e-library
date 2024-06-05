@@ -48,8 +48,8 @@ const BookManagerDashboard = () => {
             Biblioteka
           </Typography>
           <ThemeProvider theme={theme}>
-            <Button component={NavLink} to={"/bookManagerDashboard/books"} fullWidth><BookmarkAddedIcon />&nbsp; Książki</Button>
-            <Button component={NavLink} to={"/bookManagerDashboard/addBook"} fullWidth ><HistoryIcon />&nbsp; Dodaj Książkę</Button>
+            <Button component={NavLink} to={"/warehouseManagerDashboard/books"} fullWidth><BookmarkAddedIcon />&nbsp; Książki</Button>
+            <Button component={NavLink} to={"/warehouseManagerDashboard/addBook"} fullWidth ><HistoryIcon />&nbsp; Dodaj Książkę</Button>
           </ThemeProvider>
         </Grid>
         <Grid item xs={12} md sx={{ bgcolor: "rgb(255, 255, 255)", borderRadius: "20px", margin: "40px 20px" }}>

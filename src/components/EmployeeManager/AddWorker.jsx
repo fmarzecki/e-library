@@ -3,6 +3,10 @@ import axios from 'axios';
 import { TextField, Button, Typography, Snackbar } from '@mui/material';
 
 const AddWorker = () => {
+
+  let apiKey = localStorage.getItem('apiKey')
+  let user = JSON.parse(localStorage.getItem('user'))
+  
   const [workerData, setWorkerData] = useState({
     workerType: 'worker',
     name: '',
@@ -14,7 +18,7 @@ const AddWorker = () => {
     address: '',
     pesel: '',
     monthlyPay: 0,
-    employerId: 1
+    employerId: user.user.empManId
   });
   const [notification, setNotification] = useState(null);
 
@@ -26,9 +30,11 @@ const AddWorker = () => {
     }));
   };
 
+  console.log(apiKey)
+  console.log(user.user.empManId)
   const handleSubmit = async () => {
     try {
-      await axios.post('http://localhost:8080/user/registerWorker', workerData);
+      await axios.post(`http://localhost:8080/user/registerWorker/apiKey=${apiKey}`, workerData);
       setNotification({ message: 'Worker added successfully', severity: 'success' });
       setWorkerData({
         workerType: 'worker',
@@ -41,8 +47,9 @@ const AddWorker = () => {
         address: '',
         pesel: '',
         monthlyPay: 0,
-        employerId: 1
+        employerId: 0
       });
+
     } catch (error) {
       setNotification({ message: 'Failed to add worker', severity: 'error' });
     }

@@ -18,8 +18,8 @@ const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 function ResponsiveAppBar() {
 
   const [anchorElUser, setAnchorElUser] = React.useState(null);
-  const [user, setUser] = React.useState({imie: "Kamil", nazwisko: "Rojek"})
-
+  let apiKey = localStorage.getItem('apiKey')
+  let user = JSON.parse(localStorage.getItem('user'))
 
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
@@ -33,12 +33,12 @@ function ResponsiveAppBar() {
     <AppBar position="static" sx={{bgcolor: "white", borderRadius: "10px", color: "black" , mb: '10px'}}>
       <Container maxWidth="xl" >
         <Toolbar disableGutters sx={{display: 'flex', justifyContent: "space-between", }}>
-            <Typography> Witaj {user.imie} {user.nazwisko} </Typography>
+            <Typography> Witaj {user.user.user.name} {user.user.user.surname} </Typography>
           <Box >
             {/* ToolTip - po najechaniu na element wyswietla sie informacja*/}
             <Tooltip title="Open settings"> 
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt={user.imie} src="/static/images/avatar/2.jpg" />
+                <Avatar alt={user.user.user.name} src="/static/images/avatar/2.jpg" />
               </IconButton>
             </Tooltip>
             <Menu
