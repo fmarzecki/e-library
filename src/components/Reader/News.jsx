@@ -11,7 +11,8 @@ function News() {
     ]);
 
     useEffect(() => {
-      axios.get('http://localhost:8080/worker/getNewsPosts')
+      let apiKey = localStorage.getItem('apiKey')
+      axios.get(`http://localhost:8080/worker/getNewsPosts/apiKey=${apiKey}`)
           .then(response => {
             console.log(response)
           setNews(response.data.data["News posts: "]);

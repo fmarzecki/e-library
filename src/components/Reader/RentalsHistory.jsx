@@ -16,8 +16,8 @@ const RentalsHistory = () => {
 
     const fetchRentals = async () => {
         try {
-            console.log(pagination);
-            const response = await axios.post(`http://localhost:8080/worker/getAllRentalsForUser/email=${userEmail}/paginated`, pagination);
+            let apiKey = localStorage.getItem('apiKey')
+            const response = await axios.post(`http://localhost:8080/worker/getAllRentalsForUser/email=${userEmail}/paginated/apiKey=${apiKey}`, pagination);
             const rentalsData = response.data.data.Rentals.content.map(rental => ({
                 id: rental.rentalId,
                 bookTitle: rental.bookCopy.book.title,

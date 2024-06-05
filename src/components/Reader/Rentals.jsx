@@ -13,7 +13,7 @@ const Rentals = () => {
   const [pagination, setPagination] = useState({
     page: 0,
     size: 5,
-    filterBy: 'active'
+    filterBy: ''
   });
   const [rowCount, setRowCount] = useState(0);
   const [selectedRowIds, setSelectedRowIds] = useState(null);
@@ -28,7 +28,8 @@ const Rentals = () => {
 
   const fetchRentals = async () => {
     try {
-      const response = await axios.post(`http://localhost:8080/worker/getAllRentalsForUser/email=${userEmail}/paginated`, pagination);
+      let apiKey = localStorage.getItem('apiKey')
+      const response = await axios.post(`http://localhost:8080/worker/getAllRentalsForUser/email=${userEmail}/paginated/apiKey=${apiKey}`, pagination);
       const rentalsData = response.data.data.Rentals.content.map(rental => {
         try {
           const rentalReturnDate = addWeeks(rental.rentalDate, rental.timeOfRentalInWeeks);
@@ -75,8 +76,8 @@ const Rentals = () => {
         rentalId: selectedRowIds,
         prolongationInWeeks: 4,
       };
-      console.log(temp);
-      await axios.patch(`http://localhost:8080/book/prolongateRental`, temp);
+      let apiKey = localStorage.getItem('apiKey')
+      await axios.patch(`http://localhost:8080/book/prolongateRental/apiKey=${apiKey}`, temp);
       setNotification({ message: 'Udało się prolongować książke.', severity: 'success' });
     } catch (error) {
       setNotification({ message: 'Nie udało się prolongować książki', severity: 'warning' });
