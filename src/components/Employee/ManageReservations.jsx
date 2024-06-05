@@ -41,12 +41,13 @@ const ManageReservations = () => {
     try {
       let apiKey = localStorage.getItem('apiKey');
       const rentalForm = {
-        workerId: localStorage.getItem('workerId'), // Załóżmy, że workerId jest przechowywane w localStorage
+        workerId: JSON.parse(localStorage.getItem('user')).user.workerId,
         readerEmail: reservation.reader.user.email,
         bookId: reservation.book.bookId,
-        rentalInWeeks: rentalWeeks
+        rentalInWeeks: parseInt(rentalWeeks)
       };
-      await axios.post(`http://localhost:8080/rent/apiKey=${apiKey}`, rentalForm);
+      console.log(rentalForm)
+      await axios.post(`http://localhost:8080/worker/rent/apiKey=${apiKey}`, rentalForm);
       setNotification({ message: 'Udało się wypożyczyć książkę', severity: 'success' });
       setReservations(prevReservations => prevReservations.filter(res => res.reservationId !== reservation.reservationId));
     } catch (error) {
