@@ -33,7 +33,7 @@ const BookList = () => {
 
   const fetchBooks = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/book/getAllPaginated/apiKey=${apiKey}`, pagination);
+      const response = await axios.post(`http://localhost:8080/book/getAllPaginated/apiKey=${apiKey}`, pagination);
       setBooks(response.data.data.Books.content); // Save fetched books
       setTotalPages(response.data.data.Books.totalPages); // Save total number of pages
     } catch (error) {

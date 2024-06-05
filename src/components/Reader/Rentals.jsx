@@ -15,10 +15,11 @@ const Rentals = () => {
     size: 5,
     filterBy: 'active'
   });
+  let user = JSON.parse(localStorage.getItem('user'))
   const [rowCount, setRowCount] = useState(0);
   const [selectedRowIds, setSelectedRowIds] = useState(null);
   const [selectedRowData, setSelectedRowData] = useState(null);
-  const userEmail = "ff@wp.pl";
+  const userEmail = user.user.user.email;
   const [notification, setNotification] = useState(null);
 
   const addWeeks = (date, weeks) => {
