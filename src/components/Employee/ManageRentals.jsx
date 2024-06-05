@@ -14,7 +14,8 @@ const ManageRentals = () => {
   useEffect(() => {
     const fetchReaders = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/worker/getReaders');
+        let apiKey = localStorage.getItem('apiKey')
+        const response = await axios.get(`http://localhost:8080/worker/getReaders/apiKey=${apiKey}`);
         setReaders(response.data.data["Readers: "]);
       } catch (error) {
         setNotification({ message: 'Nie udało się pobrać użytkowników.', severity: 'warning' });
@@ -27,18 +28,22 @@ const ManageRentals = () => {
   const handleUserClick = async (userEmail) => {
     try {
         console.log(userEmail)
-      const response = await axios.get(`http://localhost:8080/worker/getRentalsForUser/email=${userEmail}`);
-      setBorrowings(response.data.data["Rentals: "]);
-      setSelectedUser(userEmail);
-    } catch (error) {
+        let apiKey = localStorage.getItem('apiKey')
+        const response = await axios.get(`http://localhost:8080/worker/getRentalsForUser/email=${userEmail}/apiKey=${apiKey}`);
+        setBorrowings(response.data.data["Rentals: "]);
+        setSelectedUser(userEmail);
+    } 
+    catch (error) {
       setNotification({ message: 'Nie udało się pobrać wypożyczeń.', severity: 'warning' });
-    } finally {
+    } 
+    finally {
     }
   };
 
   const handleBorrowingReturn = async (borrowingId) => {
     try {
-      await axios.patch(`http://localhost:8080/worker/return`, {rentalId: borrowingId});
+      let apiKey = localStorage.getItem('apiKey')
+      await axios.patch(`http://localhost:8080/worker/return/apiKey=${apiKey}`, {rentalId: borrowingId});
       setNotification({ message: 'Udało się zwrócić książke', severity: 'success' });
     } catch (error) {
       setNotification({ message: 'Nie udało się zwrócić książki', severity: 'warning' });

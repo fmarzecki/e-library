@@ -28,7 +28,8 @@ const ManageNews = () => {
   // POBIERANIE DANYCH Z BAZY
   const fetchNews = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/worker/getNewsPosts');
+      let apiKey = localStorage.getItem('apiKey')
+      const response = await axios.get(`http://localhost:8080/worker/getNewsPosts/apiKey=${apiKey}`);
       setNews(response.data.data["News posts: "]);
     } catch (error) {
       console.error(error);
@@ -42,8 +43,8 @@ const ManageNews = () => {
 
   const handleDelete = async (idPost) => {
     try {
-      console.log(idPost)
-      await axios.delete(`http://localhost:8080/worker/deleteNewsPost/postId=${idPost}`);
+      let apiKey = localStorage.getItem('apiKey')
+      await axios.delete(`http://localhost:8080/worker/deleteNewsPost/postId=${idPost}/apiKey=${apiKey}`);
       setNotification({ message: 'Udało się usunąć ogłoszenie.', severity: 'success' });
     } catch (error) {
       setNotification({ message: 'Nie udało się zaktualizować ogłoszenie.', severity: 'warning' });
@@ -54,7 +55,8 @@ const ManageNews = () => {
 
   const handleSave = async () => {
     try {
-      await axios.put('http://localhost:8080/worker/updateNewsPost', editingPost);
+      let apiKey = localStorage.getItem('apiKey')
+      await axios.put(`http://localhost:8080/worker/updateNewsPost/apiKey=${apiKey}`, editingPost);
       setNotification({ message: 'Udało się zaktualizować ogłoszenie.', severity: 'success' });
       fetchNews();
       setEditingPost(prevState => ({
@@ -95,7 +97,8 @@ const ManageNews = () => {
   const handleAddPost = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:8080/worker/addNewsPost', newPost);
+      let apiKey = localStorage.getItem('apiKey')
+      await axios.post(`http://localhost:8080/worker/addNewsPost/apiKey=${apiKey}`, newPost);
       setNotification({ message: 'Udało się dodać ogłoszenie.', severity: 'success' });
       setNewPost({
         workerId: 1,
