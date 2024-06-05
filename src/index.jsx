@@ -24,6 +24,7 @@ import EmployeeDashboard from './components/Employee/EmployeeDashboard'
 import ManageNews from './components/Employee/ManageNews';
 import AddWorker from './components/EmployeeManager/AddWorker';
 import ManageRentals from './components/Employee/ManageRentals';
+import ManageReservations from './components/Employee/ManageReservations';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -84,6 +85,10 @@ const router = createBrowserRouter([
       {
         path: '/employeeDashboard/manageNews',
         element: <ManageNews />,
+      },
+      {
+        path: '/employeeDashboard/manageReservations',
+        element: <ManageReservations />,
       },
       {
         path: '/employeeDashboard/manageRentals',
