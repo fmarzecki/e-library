@@ -7,6 +7,7 @@ import Typography from '@mui/material/Typography';
 import axios from 'axios';
 import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
+import Notification from '../Alert/Notification';
 
 const Catalog = () => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -14,6 +15,7 @@ const Catalog = () => {
   const [books, setBooks] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
   const [filterText, setFilterText] = useState('');
+  const [notification, setNotification] = useState(null);
   const [pagination, setPagination] = useState({
     filter: '',
     filterBy: '',
@@ -80,8 +82,33 @@ const Catalog = () => {
     }));
   }
 
+  const reserveBook = async (bookId) => {
+    try {
+      let apiKey = localStorage.getItem('apiKey');
+      let readerId = 1; // Symulacja readerId - do zmiany jak zmieni sie backend TODO
+      let temp = {
+        bookId: bookId,
+        readerId: readerId,
+      }
+      const response = await axios.patch(`http://localhost:8080/book/reserveBook/apiKey=${apiKey}`, temp);
+      if (response.status === 200) {
+        setNotification({ message: 'Udało się zarezerwować książkę.', severity: 'success' });
+      } 
+      else {
+        setNotification({ message: 'Nie udało się zarezerwowac ksiażki.', severity: 'warning' });
+      }
+    } 
+    catch (error) {
+      console.error('Error reserving book:', error);
+      setNotification({ message: 'Nie udało się zarezerwowac ksiażki. - Error zewnętrzny', severity: 'warning' });
+    }
+  };
+
   return (
     <Grid container justifyContent="center" alignItems="center" spacing={3} >
+      {notification && (
+        <Notification message={notification.message} severity={notification.severity} setOpenProp={setNotification} />
+      )}
       <Grid item xs={12}>
         <TextField
           label="Filtruj"
@@ -123,7 +150,7 @@ const Catalog = () => {
               <Typography variant="body2" color="text.secondary">
                 Autor: {book.bookAuthor}
               </Typography>
-              <Button size="small">Zarezerwuj</Button>
+              <Button size="small" onClick={() => reserveBook(book.bookId)}>Zarezerwuj</Button>
               <Button size="small">Informacje</Button>
             </CardContent>
           </Card>

@@ -13,7 +13,7 @@ const Rentals = () => {
   const [pagination, setPagination] = useState({
     page: 0,
     size: 5,
-    filterBy: ''
+    filterBy: 'active'
   });
   const [rowCount, setRowCount] = useState(0);
   const [selectedRowIds, setSelectedRowIds] = useState(null);
@@ -44,7 +44,8 @@ const Rentals = () => {
             author: rental.bookCopy.book.bookAuthor,
             is_prolonged: rental.prolonged,
           };
-        } catch (error) {
+        }
+        catch (error) {
           console.error(error);
           return null;
         }
