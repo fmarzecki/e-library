@@ -81,11 +81,12 @@ const Catalog = () => {
       page: 0
     }));
   }
+  let user = JSON.parse(localStorage.getItem('user'))
 
   const reserveBook = async (bookId) => {
     try {
       let apiKey = localStorage.getItem('apiKey');
-      let readerId = 1; // Symulacja readerId - do zmiany jak zmieni sie backend TODO
+      let readerId = user.user.readerId; // Symulacja readerId - do zmiany jak zmieni sie backend TODO
       let temp = {
         bookId: bookId,
         readerId: readerId,
