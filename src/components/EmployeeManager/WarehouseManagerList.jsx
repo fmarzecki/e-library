@@ -5,6 +5,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import Notification from '../Alert/Notification';
+import { useNavigate } from 'react-router-dom';
 
 const WarehouseManagersList = () => {
   const [managers, setManagers] = useState([]);

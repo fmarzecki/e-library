@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Grid, Button, Typography, ThemeProvider, createTheme } from '@mui/material';
 import BookIcon from '@mui/icons-material/Book';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
@@ -8,6 +8,8 @@ import BookmarkAddedIcon from '@mui/icons-material/BookmarkAdded';
 import { Outlet, NavLink } from 'react-router-dom';
 import ResponsiveAppBar from '../ResponsiveAppBar';
 import HistoryIcon from '@mui/icons-material/History';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const theme = createTheme({
   components: {
@@ -37,7 +39,16 @@ const theme = createTheme({
   },
 });
 
+
 const BookManagerDashboard = () => {
+  let user = JSON.parse(localStorage.getItem('user'))
+  const navigate = useNavigate();
+  
+    useEffect(() => {
+      if (user.userType != "warehouse manager") {
+        navigate('/authentication');
+      }
+    }, []); 
 
   return (
     <>
