@@ -22,6 +22,9 @@ const theme = createTheme({
 });
 
 const Account = () => {
+  // Dane
+  const user = JSON.parse(localStorage.getItem('user'))
+
 
   // Przelacznik widocznosci hasla
   const [showPassword, setShowPassword] = useState(false);
@@ -64,19 +67,19 @@ const Account = () => {
           <Grid item xs={12}>
             <Typography variant="body1">
               <strong>Imię:</strong><br />
-              {"Kamil"}
+              {user.user.user.name}
             </Typography>
           </Grid>
           <Grid item xs={12}>
             <Typography variant="body1">
               <strong>Nazwisko:</strong><br />
-              {"Rojek"}
+              {user.user.user.surname}
             </Typography>
           </Grid>
           <Grid item xs={12}>
             <Typography variant="body1">
               <strong>Email:</strong><br />
-              {"kayletosyf123@gmail.com"}
+              {user.user.user.email}
             </Typography>
           </Grid>
           <Grid item xs={12}>
@@ -85,7 +88,7 @@ const Account = () => {
             </Typography>
             <TextField
               type={showPassword ? 'text' : 'password'}
-              value={"poleHasla"}
+              value={user.user.user.password}
               variant='standard'
               InputProps={{
                 endAdornment: (
