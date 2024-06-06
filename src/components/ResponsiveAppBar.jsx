@@ -9,17 +9,17 @@ import Container from '@mui/material/Container';
 import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { StyledLink } from './StyledLink';
 
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 function ResponsiveAppBar() {
-
   const [anchorElUser, setAnchorElUser] = React.useState(null);
-  let apiKey = localStorage.getItem('apiKey')
-  let user = JSON.parse(localStorage.getItem('user'))
+  let apiKey = localStorage.getItem('apiKey');
+  let user = JSON.parse(localStorage.getItem('user'));
+  const navigate = useNavigate();
 
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
@@ -29,14 +29,18 @@ function ResponsiveAppBar() {
     setAnchorElUser(null);
   };
 
+  const handleLogout = () => {
+    localStorage.clear()
+    navigate('/authentication');
+  };
+
   return (
-    <AppBar position="static" sx={{bgcolor: "white", borderRadius: "10px", color: "black" , mb: '10px'}}>
-      <Container maxWidth="xl" >
-        <Toolbar disableGutters sx={{display: 'flex', justifyContent: "space-between", }}>
-            <Typography> Witaj {user.user.user.name} {user.user.user.surname} </Typography>
-          <Box >
-            {/* ToolTip - po najechaniu na element wyswietla sie informacja*/}
-            <Tooltip title="Open settings"> 
+    <AppBar position="static" sx={{ bgcolor: 'white', borderRadius: '10px', color: 'black', mb: '10px' }}>
+      <Container maxWidth="xl">
+        <Toolbar disableGutters sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Typography>Witaj {user.user.user.name} {user.user.user.surname}</Typography>
+          <Box>
+            <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                 <Avatar alt={user.user.user.name} src="/static/images/avatar/2.jpg" />
               </IconButton>
@@ -57,15 +61,12 @@ function ResponsiveAppBar() {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-
-            <MenuItem id="account" onClick={handleCloseUserMenu}>
-                <Typography component={StyledLink} to={"/"} textAlign="center">Konto</Typography>
-            </MenuItem>
-
-            <MenuItem id="logout" onClick={handleCloseUserMenu}>
-                    <Typography component={StyledLink} to={"/"} textAlign="center">Wyloguj</Typography>
-            </MenuItem>
-
+              <MenuItem id="account" onClick={handleCloseUserMenu}>
+                <Typography component={StyledLink} to="/readerDashboard/account" textAlign="center">Konto</Typography>
+              </MenuItem>
+              <MenuItem id="logout" onClick={handleLogout}>
+                <Typography textAlign="center">Wyloguj</Typography>
+              </MenuItem>
             </Menu>
           </Box>
         </Toolbar>
@@ -73,4 +74,5 @@ function ResponsiveAppBar() {
     </AppBar>
   );
 }
+
 export default ResponsiveAppBar;
