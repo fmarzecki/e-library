@@ -10,7 +10,7 @@ const ManageReservations = () => {
   const [notification, setNotification] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedReservation, setSelectedReservation] = useState(null);
-  const [rentalWeeks, setRentalWeeks] = useState('');
+  const [rentalWeeks, setRentalWeeks] = useState({});
 
   useEffect(() => {
     const fetchReaders = async () => {
@@ -25,13 +25,13 @@ const ManageReservations = () => {
     fetchReaders();
   }, []);
 
-  const handleUserClick = async (readerId) => {
+  const handleUserClick = async (readerEmail) => {
     try {
       let apiKey = localStorage.getItem('apiKey');
-      console.log({readerId: readerId})
-      const response = await axios.post(`http://localhost:8080/book/getAllReserved/apiKey=${apiKey}`, { readerId: readerId });
+      const response = await axios.post(`http://localhost:8080/book/getAllReserved/apiKey=${apiKey}`, { readerEmail: readerEmail });
       setReservations(response.data.data["Copy list"]);
-      setSelectedUser(readerId);
+      setSelectedUser(readerEmail);
+      setRentalWeeks({}); // Reset rental weeks when a new user is selected
     } catch (error) {
       setNotification({ message: 'Nie udało się pobrać rezerwacji.', severity: 'warning' });
     }
@@ -41,12 +41,10 @@ const ManageReservations = () => {
     try {
       let apiKey = localStorage.getItem('apiKey');
       const rentalForm = {
-        workerId: JSON.parse(localStorage.getItem('user')).user.workerId,
         readerEmail: reservation.reader.user.email,
         bookId: reservation.book.bookId,
-        rentalInWeeks: parseInt(rentalWeeks)
+        rentalInWeeks: parseInt(rentalWeeks[reservation.copyId]) || 0
       };
-      console.log(rentalForm)
       await axios.post(`http://localhost:8080/worker/rent/apiKey=${apiKey}`, rentalForm);
       setNotification({ message: 'Udało się wypożyczyć książkę', severity: 'success' });
       setReservations(prevReservations => prevReservations.filter(res => res.reservationId !== reservation.reservationId));
@@ -57,10 +55,12 @@ const ManageReservations = () => {
     }
   };
 
-  const handleWeeksChange = (e) => {
-    const value = e.target.value;
+  const handleWeeksChange = (reservationId, value) => {
     if (/^\d*$/.test(value) && value !== '0') {
-      setRentalWeeks(value);
+      setRentalWeeks(prevState => ({
+        ...prevState,
+        [reservationId]: value
+      }));
     }
   };
 
@@ -75,7 +75,7 @@ const ManageReservations = () => {
             <Typography variant="h5" gutterBottom>Lista czytelników:</Typography>
             <List>
               {readers.map((reader) => (
-                <ListItem key={reader.readerId} button onClick={() => handleUserClick(reader.readerId)}>
+                <ListItem key={reader.readerId} button onClick={() => handleUserClick(reader.user.email)}>
                   <ListItemText
                     primary={`${reader.user.name} ${reader.user.surname}`}
                     secondary={`Email: ${reader.user.email}`}
@@ -95,21 +95,22 @@ const ManageReservations = () => {
                     <ListItem key={reservation.copyId}>
                       <ListItemText
                         primary={`Tytuł: ${reservation.book.title}`}
-                        //secondary={`Data rezerwacji: ${reservation.reservationDate}`}
                       />
                       <TextField
+                        key={'Field' + reservation.copyId}
                         label="Liczba tygodni"
                         variant="outlined"
-                        value={rentalWeeks}
-                        onChange={handleWeeksChange}
+                        value={rentalWeeks[reservation.copyId] || ''}
+                        onChange={(e) => handleWeeksChange(reservation.copyId, e.target.value)}
                         sx={{ marginRight: "10px" }}
                         inputProps={{ inputMode: 'numeric', pattern: '[1-9]*' }}
                       />
-                      <Button 
+                      <Button
+                        key={'Button' + reservation.copyId}
                         variant="outlined" 
                         color="secondary" 
                         onClick={() => { setSelectedReservation(reservation); setDialogOpen(true); }} 
-                        disabled={!rentalWeeks || rentalWeeks <= 0 || rentalWeeks > 8}
+                        disabled={!rentalWeeks[reservation.copyId] || rentalWeeks[reservation.copyId] <= 0 || rentalWeeks[reservation.copyId] > 8}
                       >
                         Wypożycz
                       </Button>

@@ -86,10 +86,8 @@ const Catalog = () => {
   const reserveBook = async (bookId) => {
     try {
       let apiKey = localStorage.getItem('apiKey');
-      let readerId = user.user.readerId; // Symulacja readerId - do zmiany jak zmieni sie backend TODO
       let temp = {
         bookId: bookId,
-        readerId: readerId,
       }
       const response = await axios.patch(`http://localhost:8080/book/reserveBook/apiKey=${apiKey}`, temp);
       if (response.status === 200) {
