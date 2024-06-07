@@ -67,6 +67,9 @@ const ManageReservations = () => {
     }
   };
 
+  // Obsługa zmiany wartości liczby tygodni dla wypożyczenia
+  // /^\d*$/.test(value) - wyrażenie reguralne sprawdzajace czy wartosc jest liczba
+  // value !== 0 - sprawdzenie czy liczba tygodni nie jest 0
   const handleWeeksChange = (reservationId, value) => {
     if (/^\d*$/.test(value) && value !== '0') {
       setRentalWeeks(prevState => ({
@@ -159,7 +162,9 @@ const ManageReservations = () => {
             <Typography variant="h5" gutterBottom>Lista czytelników:</Typography>
             <List>
               {readers.map((reader) => (
-                <ListItem key={reader.readerId} button onClick={() => handleUserClick(reader.user.email)}>
+                <ListItem key={reader.readerId} button onClick={() => handleUserClick(reader.user.email)} sx={{
+                  backgroundColor: selectedUser === reader.user.email ? 'rgba(227, 229, 255, 0.78)' : 'inherit'
+                }}>
                   <ListItemText
                     primary={`${reader.user.name} ${reader.user.surname}`}
                     secondary={`Email: ${reader.user.email}`}

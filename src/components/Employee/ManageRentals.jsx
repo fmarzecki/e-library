@@ -142,7 +142,9 @@ const ManageRentals = () => {
             <Typography variant="h5" gutterBottom>Lista czytelników:</Typography>
             <List>
               {readers.map((reader) => (
-                <ListItem key={reader.readerId} button onClick={() => handleUserClick(reader.user.email)}>
+                <ListItem key={reader.readerId} button onClick={() => handleUserClick(reader.user.email)} sx={{
+                  backgroundColor: selectedUser === reader.user.email ? 'rgba(227, 229, 255, 0.78)' : 'inherit'
+                }}>
                   <ListItemText
                     primary={`${reader.user.name} ${reader.user.surname}`}
                     secondary={`Email: ${reader.user.email}`}
