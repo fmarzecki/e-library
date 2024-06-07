@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { List, ListItem, ListItemText, Typography, CircularProgress, Button, Dialog, DialogTitle, DialogContent, DialogActions, Grid, Paper } from '@mui/material';
+import { List, ListItem, ListItemText, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions, Grid, Paper, TextField, Menu, MenuItem, Pagination } from '@mui/material';
 import Notification from '../Alert/Notification';
 
 const ManageRentals = () => {
@@ -10,40 +10,47 @@ const ManageRentals = () => {
   const [notification, setNotification] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedBorrowing, setSelectedBorrowing] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedMenuItem, setSelectedMenuItem] = useState('');
+  const [filterText, setFilterText] = useState('');
+  const [pagination, setPagination] = useState({
+    filter: '',
+    filterBy: '',
+    page: 0,
+    size: 3,
+  });
+  const [totalPages, setTotalPages] = useState(0);
+
+  const fetchReaders = async () => {
+    try {
+      let apiKey = localStorage.getItem('apiKey');
+      const response = await axios.post(`http://localhost:8080/worker/getReadersPaginated/apiKey=${apiKey}`, pagination);
+      setReaders(response.data.data["Reader"].content);
+      setTotalPages(response.data.data["Reader"].totalPages);
+    } catch (error) {
+      setNotification({ message: 'Nie udało się pobrać użytkowników.', severity: 'warning' });
+    }
+  };
 
   useEffect(() => {
-    const fetchReaders = async () => {
-      try {
-        let apiKey = localStorage.getItem('apiKey')
-        const response = await axios.get(`http://localhost:8080/worker/getReaders/apiKey=${apiKey}`);
-        setReaders(response.data.data["Readers: "]);
-      } catch (error) {
-        setNotification({ message: 'Nie udało się pobrać użytkowników.', severity: 'warning' });
-      } finally {
-      }
-    };
     fetchReaders();
-  }, []);
+  }, [pagination]);
 
   const handleUserClick = async (userEmail) => {
     try {
-        console.log(userEmail)
-        let apiKey = localStorage.getItem('apiKey')
-        const response = await axios.get(`http://localhost:8080/worker/getRentalsForUser/email=${userEmail}/apiKey=${apiKey}`);
-        setBorrowings(response.data.data["Rentals: "]);
-        setSelectedUser(userEmail);
-    } 
-    catch (error) {
+      let apiKey = localStorage.getItem('apiKey');
+      const response = await axios.get(`http://localhost:8080/worker/getRentalsForUser/email=${userEmail}/apiKey=${apiKey}`);
+      setBorrowings(response.data.data["Rentals: "]);
+      setSelectedUser(userEmail);
+    } catch (error) {
       setNotification({ message: 'Nie udało się pobrać wypożyczeń.', severity: 'warning' });
-    } 
-    finally {
     }
   };
 
   const handleBorrowingReturn = async (borrowingId) => {
     try {
-      let apiKey = localStorage.getItem('apiKey')
-      await axios.patch(`http://localhost:8080/worker/return/apiKey=${apiKey}`, {rentalId: borrowingId});
+      let apiKey = localStorage.getItem('apiKey');
+      await axios.patch(`http://localhost:8080/worker/return/apiKey=${apiKey}`, { rentalId: borrowingId });
       setNotification({ message: 'Udało się zwrócić książke', severity: 'success' });
     } catch (error) {
       setNotification({ message: 'Nie udało się zwrócić książki', severity: 'warning' });
@@ -52,54 +59,121 @@ const ManageRentals = () => {
     }
   };
 
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleMenuItemClick = (column) => {
+    setSelectedMenuItem(column);
+    handleMenuClose();
+  };
+
+  const handlePageChange = (event, value) => {
+    setPagination(prevState => ({
+      ...prevState,
+      page: value - 1,
+    }));
+  };
+
+  const handleFilterBy = () => {
+    setPagination(prevState => ({
+      ...prevState,
+      filterBy: selectedMenuItem,
+      filter: filterText,
+      page: 0,
+    }));
+  };
+
+  const columns = [
+    { field: 'email', headerName: 'Email', width: 130 },
+    { field: 'surname', headerName: 'Nazwisko', width: 130 },
+  ];
 
   return (
     <>
       {notification && (
         <Notification message={notification.message} severity={notification.severity} setOpenProp={setNotification} />
       )}
-       <Grid container>
-        <Grid item xs={12} sm={12} md={12} sx={{ marginBottom: "20px"}} minWidth={200}>
-          <Paper sx={{ padding: "1rem", margin: 'auto', width: "80%", }}>
-          <Typography variant="h5" gutterBottom>Lista czytelników:</Typography>
+      <Grid container justifyContent="center" alignItems="center" spacing={3}>
+        <Grid item xs={12}>
+          <Typography
+            variant="h5"
+            sx={{ width: '80%' }}
+          >
+            Wypożyczenia
+          </Typography>
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            label="Filtruj"
+            variant="outlined"
+            sx={{ width: '80%' }}
+            onChange={(e) => setFilterText(e.target.value)}
+          />
+          <TextField
+            sx={{ width: '20%' }}
+            type="submit"
+            onClick={handleFilterBy}
+          />
+          <Button variant="outlined" onClick={handleMenuOpen}>Filtruj według</Button>
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleMenuClose}
+          >
+            {columns.map((column) => (
+              <MenuItem
+                key={column.field}
+                onClick={() => handleMenuItemClick(column.field)}
+                selected={selectedMenuItem === column.field} 
+                sx={{ '&.Mui-selected': { backgroundColor: 'rgba(0, 0, 255, 0.18)' } }}
+              >
+                {column.headerName}
+              </MenuItem>
+            ))}
+          </Menu>
+        </Grid>
+        <Grid item xs={12} sm={12} md={12} sx={{ marginBottom: "20px" }} minWidth={200}>
+          <Paper elevation={5} sx={{ padding: "1rem", margin: 'auto', width: "80%", }}>
+            <Typography variant="h5" gutterBottom>Lista czytelników:</Typography>
             <List>
-                {readers.map((reader) => (
+              {readers.map((reader) => (
                 <ListItem key={reader.readerId} button onClick={() => handleUserClick(reader.user.email)}>
-                    <ListItemText 
+                  <ListItemText
                     primary={`${reader.user.name} ${reader.user.surname}`}
                     secondary={`Email: ${reader.user.email}`}
-                    />
+                  />
                 </ListItem>
-                ))}
+              ))}
             </List>
+            <Pagination count={totalPages} page={pagination.page + 1} color="primary" onChange={handlePageChange} />
           </Paper>
-        </Grid> 
-          {selectedUser && (
-            <>
-            <Grid item xs={12} sm={12} md={12} sx={{ marginBottom: "20px"}} minWidth={200}>
-              <Paper sx={{ padding: "1rem", margin: 'auto', width: "80%", }}>
-                <Typography variant="h6" gutterBottom>Wypożyczenia czytelnika:</Typography>
-                <List>
-                  {borrowings.map((borrowing) => (
-                    <ListItem key={borrowing.rentalId}>
-                      <ListItemText 
-                        primary={`Tytuł: ${borrowing.bookCopy.book.title}`}
-                        secondary={`Data wypożyczenia: ${borrowing.rentalDate}`}
-                      />
-                      <Button variant="outlined" color="secondary" onClick={() => { setSelectedBorrowing(borrowing.rentalId); setDialogOpen(true); }}>
-                        Zwrot
-                      </Button>
-                    </ListItem>
-                  ))}
+        </Grid>
+        {selectedUser && (
+          <Grid item xs={12} sm={12} md={12} sx={{ marginBottom: "20px" }} minWidth={200}>
+            <Paper sx={{ padding: "1rem", margin: 'auto', width: "80%", }}>
+              <Typography variant="h6" gutterBottom>Wypożyczenia czytelnika:</Typography>
+              <List>
+                {borrowings.map((borrowing) => (
+                  <ListItem key={borrowing.rentalId}>
+                    <ListItemText
+                      primary={`Tytuł: ${borrowing.bookCopy.book.title}`}
+                      secondary={`Data wypożyczenia: ${borrowing.rentalDate}`}
+                    />
+                    <Button variant="outlined" color="secondary" onClick={() => { setSelectedBorrowing(borrowing.rentalId); setDialogOpen(true); }}>
+                      Zwrot
+                    </Button>
+                  </ListItem>
+                ))}
               </List>
-              </Paper>
-            </Grid>
-            </>
-          )}
-          
+            </Paper>
+          </Grid>
+        )}
       </Grid>
-      
-      
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
         <DialogTitle>Potwierdzenie zwrotu</DialogTitle>
         <DialogContent>
