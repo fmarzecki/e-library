@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Paper } from '@mui/material';
+import { Typography, Paper, Rating } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import axios from 'axios';
 
@@ -11,12 +11,13 @@ const RentalsHistory = () => {
         filterBy: 'inactive'
     });
     const [rowCount, setRowCount] = useState(0);
-
-    const userEmail = "ff@wp.pl";
-
+    const [selectedRating, setSelectedRating] = useState({});
+    let user = JSON.parse(localStorage.getItem('user'))
+    let userEmail = user.user.user.email;
+    
     const fetchRentals = async () => {
         try {
-            let apiKey = localStorage.getItem('apiKey')
+            let apiKey = localStorage.getItem('apiKey');
             const response = await axios.post(`http://localhost:8080/worker/getAllRentalsForUser/email=${userEmail}/paginated/apiKey=${apiKey}`, pagination);
             const rentalsData = response.data.data.Rentals.content.map(rental => ({
                 id: rental.rentalId,
@@ -26,7 +27,9 @@ const RentalsHistory = () => {
                 status: rental.status,
                 readerName: rental.reader.user.name,
                 readerEmail: rental.reader.user.email,
-                author: rental.bookCopy.book.bookAuthor
+                author: rental.bookCopy.book.bookAuthor,
+                bookId: rental.bookCopy.book.bookId,
+                rating: rental.bookCopy.book.averageBookRating || 0 // Assuming rating is part of book data
             }));
             setRentals(rentalsData);
             setRowCount(response.data.data.Rentals.totalElements);
@@ -34,6 +37,21 @@ const RentalsHistory = () => {
             console.error('Error fetching rentals:', error);
             setRentals([]);
             setRowCount(0);
+        }
+    };
+
+    const handleRatingChange = async (newRating, bookId) => {
+        try {
+            const apiKey = localStorage.getItem('apiKey');
+            const bookRatingForm = {
+                rating: newRating,
+                bookId: bookId
+            };
+            await axios.post(`http://localhost:8080/book/addOrUpdateBookRating/apiKey=${apiKey}`, bookRatingForm);
+            setSelectedRating((prev) => ({ ...prev, [bookId]: newRating }));
+            fetchRentals(); // Refresh rentals to show updated ratings
+        } catch (error) {
+            console.error('Error updating rating:', error);
         }
     };
 
@@ -75,6 +93,15 @@ const RentalsHistory = () => {
                             { field: 'author', headerName: 'Autor', flex: 15 },
                             { field: 'rentalDate', headerName: 'Data wypożyczenia', flex: 10 },
                             { field: 'rentalReturnDate', headerName: 'Data zwrotu', flex: 10 },
+                            {
+                                field: 'rating', headerName: 'Ocena', flex: 10, renderCell: (params) => (
+                                    <Rating
+                                        name={`rating-${params.row.bookId}`}
+                                        value={selectedRating[params.row.bookId] || params.row.rating}
+                                        onChange={(event, newValue) => handleRatingChange(newValue, params.row.bookId)}
+                                    />
+                                )
+                            }
                         ]}
                         pagination
                         paginationMode="server"

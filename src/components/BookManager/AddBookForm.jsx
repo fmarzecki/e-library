@@ -7,6 +7,7 @@ import ImageUploader from "../utilities/ImageUploader";
 const AddBookForm = () => {
   const [imageUrl, setImageUrl] = useState('');
   const [notification, setNotification] = useState(null);
+  const [errors, setErrors] = useState({}); // Definicja stanu błędów
 
   const [bookData, setBookData] = useState({
     title: '',
@@ -35,13 +36,30 @@ const AddBookForm = () => {
     }));
   };
 
-  let apiKey = localStorage.getItem('apiKey')
-  let user = JSON.parse(localStorage.getItem('user'))
+  const validateForm = () => {
+    let valid = true;
+    const errors = {};
+
+    // Validation for description
+    if (bookData.description.length < 30) {
+      errors.description = "Opis musi mieć co najmniej 30 znaków.";
+      valid = false;
+    }
+
+    setErrors(errors);
+    return valid;
+  };
+
+  let apiKey = localStorage.getItem('apiKey');
   
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
     try {
-      console.log(bookData)
       await axios.post(`http://localhost:8080/book/save/apiKey=${apiKey}`, bookData);
       setImageUrl(null);
 
@@ -79,6 +97,8 @@ const AddBookForm = () => {
           name="title"
           value={bookData.title}
           onChange={handleChange}
+          error={!!errors.title}
+          helperText={errors.title}
         />
         <FormControl fullWidth margin="dense">
           <InputLabel>Typ Książki</InputLabel>
@@ -126,6 +146,8 @@ const AddBookForm = () => {
           name="bookAuthor"
           value={bookData.bookAuthor}
           onChange={handleChange}
+          error={!!errors.bookAuthor}
+          helperText={errors.bookAuthor}
         />
         <TextField
           margin="dense"
@@ -136,6 +158,8 @@ const AddBookForm = () => {
           onChange={handleChange}
           multiline
           rows={4}
+          error={!!errors.description}
+          helperText={errors.description}
         />
         <Button type="submit" variant="contained" color="primary" sx={{ marginTop: '10px' }}>
           Dodaj książkę

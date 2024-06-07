@@ -24,7 +24,7 @@ const LoginSignup = () => {
     phoneNumber: '',
     password: '',
   });
-
+  const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
   const handleChange = (event) => {
@@ -32,14 +32,49 @@ const LoginSignup = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  const validateForm = () => {
+    let formErrors = {};
+    let valid = true;
+
+    if (!isLogin) {
+      // Validate phone number
+      const phoneRegex = /^\d{9}$/;
+      if (!phoneRegex.test(formData.phoneNumber)) {
+        formErrors.phoneNumber = 'Numer telefonu musi mieć dokładnie 9 cyfr';
+        valid = false;
+      }
+
+      // Validate email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        formErrors.email = 'Nieprawidłowy format email';
+        valid = false;
+      }
+
+      // Validate password
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      if (!passwordRegex.test(formData.password)) {
+        formErrors.password = 'Hasło musi mieć minimum 8 znaków, zawierać małą i wielką literę, cyfrę oraz znak specjalny';
+        valid = false;
+      }
+    }
+
+    setErrors(formErrors);
+    return valid;
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
 
     const endpoint = isLogin ? '/user/login' : '/user/registerReader';
     const url = `http://localhost:8080${endpoint}`;
 
-    let dataToSend = isLogin ? {email: formData.email, password: formData.password} : formData
-    console.log(dataToSend)
+    let dataToSend = isLogin ? { email: formData.email, password: formData.password } : formData;
+    console.log(dataToSend);
     try {
       const response = await axios.post(url, dataToSend, {
         headers: {
@@ -54,8 +89,8 @@ const LoginSignup = () => {
           localStorage.setItem('apiKey', data.apiKey);
           localStorage.setItem('userType', data.userType);
           localStorage.setItem('user', JSON.stringify(data));
-          console.log(data)
-          console.log(localStorage.getItem('apiKey'))
+          console.log(data);
+          console.log(localStorage.getItem('apiKey'));
           switch (localStorage.getItem('userType')) {
             case 'reader':
               navigate('/readerDashboard');
@@ -72,9 +107,8 @@ const LoginSignup = () => {
             default:
               console.error('Unknown user type');
           }
-        }
-        else{
-          window.location.reload()
+        } else {
+          window.location.reload();
           setNotification({ message: 'Udało się zarejestrować.', severity: 'success' });
         }
       } else {
@@ -88,7 +122,12 @@ const LoginSignup = () => {
   return (
     <Grid container component="main" sx={{ height: '100vh' }}>
       <CssBaseline />
-      <Grid item xs={false} sm={5} md={7} sx={{
+      <Grid
+        item
+        xs={false}
+        sm={5}
+        md={7}
+        sx={{
           backgroundImage: `url(${lsjpg})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
@@ -127,6 +166,8 @@ const LoginSignup = () => {
                   autoFocus
                   value={formData.name}
                   onChange={handleChange}
+                  error={!!errors.name}
+                  helperText={errors.name}
                 />
                 <TextField
                   margin="normal"
@@ -138,6 +179,8 @@ const LoginSignup = () => {
                   autoComplete="surname"
                   value={formData.surname}
                   onChange={handleChange}
+                  error={!!errors.surname}
+                  helperText={errors.surname}
                 />
                 <TextField
                   margin="normal"
@@ -149,6 +192,8 @@ const LoginSignup = () => {
                   autoComplete="phoneNumber"
                   value={formData.phoneNumber}
                   onChange={handleChange}
+                  error={!!errors.phoneNumber}
+                  helperText={errors.phoneNumber}
                 />
               </>
             )}
@@ -162,6 +207,8 @@ const LoginSignup = () => {
               autoComplete="email"
               value={formData.email}
               onChange={handleChange}
+              error={!!errors.email}
+              helperText={errors.email}
             />
             <TextField
               margin="normal"
@@ -174,13 +221,10 @@ const LoginSignup = () => {
               autoComplete="current-password"
               value={formData.password}
               onChange={handleChange}
+              error={!!errors.password}
+              helperText={errors.password}
             />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
+            <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
               {isLogin ? 'Sign In' : 'Sign Up'}
             </Button>
             <Grid container>
@@ -191,7 +235,7 @@ const LoginSignup = () => {
               </Grid>
               <Grid item>
                 <Link href="#" variant="body2" onClick={() => setIsLogin(!isLogin)}>
-                  {isLogin ? "Nie masz konta? Zarejestruj się" : 'Masz konto? Zaloguj się'}
+                  {isLogin ? 'Nie masz konta? Zarejestruj się' : 'Masz konto? Zaloguj się'}
                 </Link>
               </Grid>
             </Grid>
