@@ -40,14 +40,20 @@ const theme = createTheme({
 });
 
 const Dashboard = () => {
-  let user = JSON.parse(localStorage.getItem('user'))
   const navigate = useNavigate();
-  
-    useEffect(() => {
-      if (user.userType != "reader") {
-        navigate('/authentication');
-      }
-    }, []); 
+
+  useEffect(() => {
+    const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+
+    if (!user) {
+      navigate('/authentication');
+      return;
+    }
+
+    if (user.userType !== 'reader') {
+      navigate('/authentication');
+    }
+  }, [navigate]);
 
   return (
     <>

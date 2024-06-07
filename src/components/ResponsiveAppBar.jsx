@@ -10,16 +10,21 @@ import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
 import { StyledLink } from './StyledLink';
 
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 function ResponsiveAppBar() {
   const [anchorElUser, setAnchorElUser] = React.useState(null);
-  let apiKey = localStorage.getItem('apiKey');
-  let user = JSON.parse(localStorage.getItem('user'));
   const navigate = useNavigate();
+  let user;
+
+  if (localStorage.getItem('user')) {
+    user = JSON.parse(localStorage.getItem('user'));
+  } else {
+    navigate('/authentication');
+    return;
+  }
 
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
@@ -34,6 +39,7 @@ function ResponsiveAppBar() {
     navigate('/authentication');
   };
 
+ 
   return (
     <AppBar position="static" sx={{ bgcolor: 'white', borderRadius: '10px', color: 'black', mb: '10px' }}>
       <Container maxWidth="xl">

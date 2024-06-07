@@ -39,15 +39,22 @@ const theme = createTheme({
 });
 
 const EmployeeDashboard = () => {
-  let user = JSON.parse(localStorage.getItem('user'))
   const navigate = useNavigate();
   
-    useEffect(() => {
-      if (user.userType != "worker") {
-        navigate('/authentication');
-      }
-    }, []); 
+  useEffect(() => {
+    const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
 
+    if (!user) {
+      navigate('/authentication');
+      return;
+    }
+
+    if (user.userType !== 'worker') {
+      navigate('/authentication');
+    }
+  }, [navigate]);
+
+  
   return (
     <>
       <Grid container sx={{ bgcolor: "rgb(219, 223, 234)" }}>

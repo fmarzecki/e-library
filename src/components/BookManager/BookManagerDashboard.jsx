@@ -44,11 +44,18 @@ const BookManagerDashboard = () => {
   let user = JSON.parse(localStorage.getItem('user'))
   const navigate = useNavigate();
   
-    useEffect(() => {
-      if (user.userType != "warehouse manager") {
-        navigate('/authentication');
-      }
-    }, []); 
+  useEffect(() => {
+    const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+
+    if (!user) {
+      navigate('/authentication');
+      return;
+    }
+
+    if (user.userType !== 'warehouse manager') {
+      navigate('/authentication');
+    }
+  }, [navigate]); 
 
   return (
     <>
