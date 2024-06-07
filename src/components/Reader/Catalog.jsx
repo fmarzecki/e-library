@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Grid, TextField, Button, Menu, MenuItem } from '@mui/material';
+import { Grid, TextField, Button, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import Card from '@mui/material/Card';
 import CardMedia from '@mui/material/CardMedia';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import axios from 'axios';
 import Pagination from '@mui/material/Pagination';
-import Stack from '@mui/material/Stack';
 import Notification from '../Alert/Notification';
 
 const Catalog = () => {
@@ -21,11 +20,13 @@ const Catalog = () => {
     filterBy: '',
     page: 0,
     size: 8,
-  })
+  });
+  const [openInfoDialog, setOpenInfoDialog] = useState(false);
+  const [selectedBook, setSelectedBook] = useState(null);
 
   const fetchBooks = async () => {
     try {
-      let apiKey = localStorage.getItem('apiKey')
+      let apiKey = localStorage.getItem('apiKey');
       const response = await axios.post(`http://localhost:8080/book/getAllPaginated/apiKey=${apiKey}`, pagination);
       setBooks(response.data.data.Books.content);
       setTotalPages(response.data.data.Books.totalPages);
@@ -45,12 +46,10 @@ const Catalog = () => {
     fetchBooks();
   }, [pagination]);
 
-
   const columns = [
     { field: 'title', headerName: 'Tytuł', width: 130 },
     { field: 'bookAuthor', headerName: 'Autor', width: 130 },
   ];
-
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -71,40 +70,47 @@ const Catalog = () => {
       page: value - 1
     }));
     console.log(pagination);
-  }
+  };
 
-  const handleFilterBy = (e) => {
+  const handleFilterBy = () => {
     setPagination(prevState => ({
       ...prevState,
       filterBy: selectedMenuItem,
       filter: filterText,
       page: 0
     }));
-  }
-  let user = JSON.parse(localStorage.getItem('user'))
+  };
+
+  const handleInfoOpen = (book) => {
+    setSelectedBook(book);
+    setOpenInfoDialog(true);
+  };
+
+  const handleInfoClose = () => {
+    setOpenInfoDialog(false);
+    setSelectedBook(null);
+  };
 
   const reserveBook = async (bookId) => {
     try {
       let apiKey = localStorage.getItem('apiKey');
       let temp = {
         bookId: bookId,
-      }
+      };
       const response = await axios.patch(`http://localhost:8080/book/reserveBook/apiKey=${apiKey}`, temp);
       if (response.status === 200) {
         setNotification({ message: 'Udało się zarezerwować książkę.', severity: 'success' });
-      } 
-      else {
-        setNotification({ message: 'Nie udało się zarezerwowac ksiażki.', severity: 'warning' });
+      } else {
+        setNotification({ message: 'Nie udało się zarezerwować książki.', severity: 'warning' });
       }
-    } 
-    catch (error) {
+    } catch (error) {
       console.error('Error reserving book:', error);
-      setNotification({ message: 'Nie udało się zarezerwowac ksiażki. - Error zewnętrzny', severity: 'warning' });
+      setNotification({ message: 'Nie udało się zarezerwować książki. - Error zewnętrzny', severity: 'warning' });
     }
   };
 
   return (
-    <Grid container justifyContent="center" alignItems="center" spacing={3} >
+    <Grid container justifyContent="center" alignItems="center" spacing={3}>
       {notification && (
         <Notification message={notification.message} severity={notification.severity} setOpenProp={setNotification} />
       )}
@@ -113,7 +119,7 @@ const Catalog = () => {
           label="Filtruj"
           variant="outlined"
           sx={{ width: '80%' }}
-          onChange={(e) => { setFilterText(e.target.value) }}
+          onChange={(e) => { setFilterText(e.target.value); }}
         />
         <TextField
           sx={{ width: '20%' }}
@@ -130,8 +136,8 @@ const Catalog = () => {
             <MenuItem
               key={column.field}
               onClick={() => handleMenuItemClick(column.field)}
-              selected={selectedMenuItem === column.field} // Podświetlenie wybranego elementu
-              sx={{ '&.Mui-selected': { backgroundColor: 'rgba(0, 0, 255, 0.18)' } }} // Zmiana koloru podświetlenia
+              selected={selectedMenuItem === column.field}
+              sx={{ '&.Mui-selected': { backgroundColor: 'rgba(0, 0, 255, 0.18)' } }}
             >
               {column.headerName}
             </MenuItem>
@@ -139,7 +145,7 @@ const Catalog = () => {
         </Menu>
       </Grid>
       {books.map((book) => (
-        <Grid item xs={12} sm={4} md={2} key={book.bookId} minWidth={300} >
+        <Grid item xs={12} sm={4} md={2} key={book.bookId} minWidth={300}>
           <Card>
             <CardMedia component="img" alt="book_image" sx={{ objectFit: 'contain', height: '340px' }} image={book.imageUrl} />
             <CardContent>
@@ -150,7 +156,7 @@ const Catalog = () => {
                 Autor: {book.bookAuthor}
               </Typography>
               <Button size="small" onClick={() => reserveBook(book.bookId)}>Zarezerwuj</Button>
-              <Button size="small">Informacje</Button>
+              <Button size="small" onClick={() => handleInfoOpen(book)}>Informacje</Button>
             </CardContent>
           </Card>
         </Grid>
@@ -159,6 +165,25 @@ const Catalog = () => {
         <Pagination count={totalPages} page={pagination.page + 1} color="primary" onChange={handlePageChange} />
       </Grid>
 
+      {selectedBook && (
+        <Dialog open={openInfoDialog} onClose={handleInfoClose}>
+          <DialogTitle>Informacje o książce</DialogTitle>
+          <DialogContent>
+            <Typography variant="h6" gutterBottom>
+              Tytuł: {selectedBook.title}
+            </Typography>
+            <Typography variant="subtitle1" gutterBottom>
+              Autor: {selectedBook.bookAuthor}
+            </Typography>
+            <Typography variant="body1" gutterBottom>
+              Opis: {selectedBook.description}
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleInfoClose} color="primary">Zamknij</Button>
+          </DialogActions>
+        </Dialog>
+      )}
     </Grid>
   );
 };
