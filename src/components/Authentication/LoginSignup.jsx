@@ -11,8 +11,10 @@ import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import lsjpg from './login_signup.jpg';
-import axios from 'axios';
 import Notification from '../Alert/Notification';
+import { jwtDecode } from 'jwt-decode';
+import { postRequest } from '../utilities/api';
+import Cookies from 'js-cookie';
 
 const LoginSignup = () => {
   const [notification, setNotification] = useState(null);
@@ -37,21 +39,18 @@ const LoginSignup = () => {
     let valid = true;
 
     if (!isLogin) {
-      // Validate phone number
       const phoneRegex = /^\d{9}$/;
       if (!phoneRegex.test(formData.phoneNumber)) {
         formErrors.phoneNumber = 'Numer telefonu musi mieć dokładnie 9 cyfr';
         valid = false;
       }
 
-      // Validate email
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(formData.email)) {
         formErrors.email = 'Nieprawidłowy format email';
         valid = false;
       }
 
-      // Validate password
       const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
       if (!passwordRegex.test(formData.password)) {
         formErrors.password = 'Hasło musi mieć minimum 8 znaków, zawierać małą i wielką literę, cyfrę oraz znak specjalny';
@@ -70,42 +69,38 @@ const LoginSignup = () => {
       return;
     }
 
-    const endpoint = isLogin ? '/user/login' : '/user/registerReader';
-    const url = `http://localhost:8080${endpoint}`;
-
+    const endpoint = isLogin ? '/auth/login' : '/auth/register';
     let dataToSend = isLogin ? { email: formData.email, password: formData.password } : formData;
-    console.log(dataToSend);
+
     try {
-      const response = await axios.post(url, dataToSend, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await postRequest(endpoint, dataToSend);
 
       if (response.status === 200) {
-        const data = response.data.data.User;
         if (isLogin) {
           setNotification({ message: 'Udało się zalogować.', severity: 'success' });
-          localStorage.setItem('apiKey', data.apiKey);
-          localStorage.setItem('userType', data.userType);
-          localStorage.setItem('user', JSON.stringify(data));
-          console.log(data);
-          console.log(localStorage.getItem('apiKey'));
-          switch (localStorage.getItem('userType')) {
-            case 'reader':
-              navigate('/readerDashboard');
+
+          const token = Cookies.get('token');
+          const decodedToken = jwtDecode(token);
+          const userRole = decodedToken.role;
+
+          // Store the JWT token in localStorage
+          localStorage.setItem('token', token);
+          localStorage.setItem('userRole', userRole);
+
+
+          // Navigate based on the user role
+          switch (userRole) {
+            case 'user':
+              navigate('/userDashboard');
               break;
-            case 'worker':
+            case 'employee':
               navigate('/employeeDashboard');
               break;
-            case 'employee manager':
-              navigate('/employeeManagerDashboard');
-              break;
-            case 'warehouse manager':
-              navigate('/warehouseManagerDashboard');
+            case 'administrator':
+              navigate('/administratorDashboard');
               break;
             default:
-              console.error('Unknown user type');
+              console.error('Unknown user role');
           }
         } else {
           window.location.reload();

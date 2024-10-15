@@ -4,25 +4,22 @@ import './index.css';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { CssBaseline } from '@mui/material';
 
-import ProfilesPage from './components/test/ProfilesPage';
 import NotFoundPage from './components/error/NotFoundPage';
-import Clicker from './components/test/Clicker';
-import ReaderDashboard from './components/Reader/ReaderDashboard';
-import News from './components/Reader/News';
-import Account from './components/Reader/Account';
-import Catalog from './components/Reader/Catalog';
-import Rentals from './components/Reader/Rentals';
-import RentalsHistory from './components/Reader/RentalsHistory';
+import UserDashboard from './components/User/UserDashboard';
+import News from './components/User/News';
+import Account from './components/User/Account';
+import Catalog from './components/User/Catalog';
+import Rentals from './components/User/Rentals';
+import RentalsHistory from './components/User/RentalsHistory';
 import LoginSignup from './components/Authentication/LoginSignup';
-import BookManagerDashboard from './components/BookManager/BookManagerDashboard';
-import AddBookForm from './components/BookManager/AddBookForm';
-import ManageBooks from './components/BookManager/ManageBooks';
-import WorkersList from './components/EmployeeManager/WorkersList';
-import EmployeeManagerDashboard from './components/EmployeeManager/EmployeeManagerDashboard';
-import WarehouseManagersList from './components/EmployeeManager/WarehouseManagerList';
+import AddBookForm from './components/Employee/AddBookForm';
+import ManageBooks from './components/Employee/ManageBooks';
+import WorkersList from './components/Administrator/WorkersList';
+import AdministratorDashboard from './components/Administrator/AdministratorDashboard';
+import WarehouseManagersList from './components/Administrator/WarehouseManagerList';
 import EmployeeDashboard from './components/Employee/EmployeeDashboard'
 import ManageNews from './components/Employee/ManageNews';
-import AddWorker from './components/EmployeeManager/AddWorker';
+import AddWorker from './components/Administrator/AddWorker';
 import ManageRentals from './components/Employee/ManageRentals';
 import ManageReservations from './components/Employee/ManageReservations';
 
@@ -34,17 +31,6 @@ const router = createBrowserRouter([
     element: <LoginSignup />,
     errorElement: <NotFoundPage />
   },
-
-  {
-    path: '/profiles',
-    element: <ProfilesPage />
-  },
-
-  {
-    path: '/clicker',
-    element: <Clicker />,
-
-  },
   {
     path: '/authentication',
     element: <LoginSignup />,
@@ -52,31 +38,31 @@ const router = createBrowserRouter([
   },
 
   {
-    path: '/readerDashboard',
-    element: <ReaderDashboard />,
+    path: '/userDashboard',
+    element: <UserDashboard />,
     children: [
       {
-        path: '/readerDashboard/news',
+        path: '/userDashboard/news',
         element: <News />,
       },
       {
-        path: '/readerDashboard/account',
+        path: '/userDashboard/account',
         element: <Account />,
       },
       {
-        path: '/readerDashboard/catalog',
+        path: '/userDashboard/catalog',
         element: <Catalog />,
       },
       {
-        path: '/readerDashboard/rentals',
+        path: '/userDashboard/rentals',
         element: <Rentals />,
       },
       {
-        path: '/readerDashboard/history',
+        path: '/userDashboard/history',
         element: <RentalsHistory />,
       }
     ],
-  }, 
+  },
 
   {
     path: '/employeeDashboard',
@@ -94,45 +80,30 @@ const router = createBrowserRouter([
         path: '/employeeDashboard/manageRentals',
         element: <ManageRentals />,
       },
-    ],
-  }, 
-
-  {
-    path: '/warehouseManagerDashboard',
-    element: <BookManagerDashboard />,
-    children: [
       {
-        path: '/warehouseManagerDashboard/addBook',
+        path: '/employeeDashboard/addBook',
         element: <AddBookForm />,
       },
       {
-        path: '/warehouseManagerDashboard/books',
+        path: '/employeeDashboard/books',
         element: <ManageBooks />,
       },
-      {
-        path: '/warehouseManagerDashboard/catalog',
-        element: <Catalog />,
-      },
-      {
-        path: '/warehouseManagerDashboard/rentals',
-        element: <Rentals />,
-      },
-    ]
+    ],
   },
   {
-    path: '/employeeManagerDashboard',
-    element: <EmployeeManagerDashboard />,
+    path: '/administratorDashboard',
+    element: <AdministratorDashboard />,
     children: [
       {
-        path: '/employeeManagerDashboard/workers',
-        element: <WorkersList/>,
+        path: '/administratorDashboard/workers',
+        element: <WorkersList />,
       },
       {
-        path: '/employeeManagerDashboard/managers',
+        path: '/administratorDashboard/managers',
         element: <WarehouseManagersList />,
       },
       {
-        path: '/employeeManagerDashboard/addWorker',
+        path: '/administratorDashboard/addWorker',
         element: <AddWorker />,
       },
     ]

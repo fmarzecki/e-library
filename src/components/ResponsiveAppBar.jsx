@@ -39,7 +39,7 @@ function ResponsiveAppBar() {
     navigate('/authentication');
   };
 
- 
+
   return (
     <AppBar position="static" sx={{ bgcolor: 'white', borderRadius: '10px', color: 'black', mb: '10px' }}>
       <Container maxWidth="xl">
@@ -68,7 +68,7 @@ function ResponsiveAppBar() {
               onClose={handleCloseUserMenu}
             >
               <MenuItem id="account" onClick={handleCloseUserMenu}>
-                <Typography component={StyledLink} to="/readerDashboard/account" textAlign="center">Konto</Typography>
+                <Typography component={StyledLink} to="/UserDashboard/account" textAlign="center">Konto</Typography>
               </MenuItem>
               <MenuItem id="logout" onClick={handleLogout}>
                 <Typography textAlign="center">Wyloguj</Typography>
