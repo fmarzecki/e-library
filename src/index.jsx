@@ -22,6 +22,9 @@ import ManageNews from './components/Employee/ManageNews';
 import AddWorker from './components/Administrator/AddWorker';
 import ManageRentals from './components/Employee/ManageRentals';
 import ManageReservations from './components/Employee/ManageReservations';
+import NoAccess from './components/error/NoAccess'
+import ProtectedRoute from './components/ProtectedRoute'
+import { RolesEnum } from './components/utilities/rolesEnum';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -36,10 +39,16 @@ const router = createBrowserRouter([
     element: <LoginSignup />,
 
   },
-
+  {
+    path: '/noaccess',
+    element: <NoAccess />,
+  },
   {
     path: '/userDashboard',
-    element: <UserDashboard />,
+    element:
+      <ProtectedRoute allowedRoles={RolesEnum.USER} >
+        <UserDashboard />
+      </ProtectedRoute >,
     children: [
       {
         path: '/userDashboard/news',
@@ -66,7 +75,10 @@ const router = createBrowserRouter([
 
   {
     path: '/employeeDashboard',
-    element: <EmployeeDashboard />,
+    element:
+      <ProtectedRoute allowedRoles={RolesEnum.EMPLOYEE} >
+        <EmployeeDashboard />
+      </ProtectedRoute >,
     children: [
       {
         path: '/employeeDashboard/manageNews',
@@ -92,7 +104,10 @@ const router = createBrowserRouter([
   },
   {
     path: '/administratorDashboard',
-    element: <AdministratorDashboard />,
+    element:
+      <ProtectedRoute allowedRoles={RolesEnum.ADMIN} >
+        <AdministratorDashboard />
+      </ProtectedRoute >,
     children: [
       {
         path: '/administratorDashboard/workers',
