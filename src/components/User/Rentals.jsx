@@ -7,52 +7,28 @@ import Button from '@mui/material/Button';
 import axios from 'axios';
 import Notification from '../Alert/Notification';
 import moment from 'moment';
+import { postRequest } from '../utilities/api';
 
 const Rentals = () => {
   const [rentals, setRentals] = useState([]);
   const [pagination, setPagination] = useState({
     page: 0,
     size: 5,
-    filterBy: 'active'
+    filterBy: ''
   });
-  let user = JSON.parse(localStorage.getItem('user'))
   const [rowCount, setRowCount] = useState(0);
   const [selectedRowIds, setSelectedRowIds] = useState(null);
   const [selectedRowData, setSelectedRowData] = useState(null);
-  const userEmail = user.user.user.email;
   const [notification, setNotification] = useState(null);
-
-  const addWeeks = (date, weeks) => {
-    console.log(weeks)
-    return moment(new Date(date)).add(parseInt(weeks), 'w').format('YYYY-MM-DD');
-  };
 
   const fetchRentals = async () => {
     try {
-      let apiKey = localStorage.getItem('apiKey')
-      const response = await axios.post(`http://localhost:8080/worker/getAllRentalsForUser/email=${userEmail}/paginated/apiKey=${apiKey}`, pagination);
-      const rentalsData = response.data.data.Rentals.content.map(rental => {
-        try {
-          const rentalReturnDate = addWeeks(rental.rentalDate, rental.timeOfRentalInWeeks);
-          return {
-            id: rental.rentalId,
-            bookTitle: rental.bookCopy.book.title,
-            rentalDate: rental.rentalDate,
-            predictedReturnDate: rentalReturnDate, // Obliczanie przewidywanego czasu zwrotu
-            status: rental.status,
-            readerName: rental.reader.user.name,
-            readerEmail: rental.reader.user.email,
-            author: rental.bookCopy.book.bookAuthor,
-            is_prolonged: rental.prolonged,
-          };
-        }
-        catch (error) {
-          console.error(error);
-          return null;
-        }
-      }).filter(rental => rental !== null);
-      setRentals(rentalsData);
-      setRowCount(response.data.data.Rentals.totalElements);
+      const endpoint = '/rentals/getRentals'
+      const response = await postRequest(endpoint, pagination)
+      console.log(response.data.data.rentals)
+      console.log(response.data.data.rentals.length)
+      setRentals(response.data.data.rentals);
+      setRowCount(response.data.data.rentals.length);
     } catch (error) {
       console.error('Error fetching rentals:', error);
       setRentals([]);
@@ -66,9 +42,9 @@ const Rentals = () => {
 
   const handlePaginationChange = (model) => {
     setPagination(prevState => ({
-        ...prevState,
-        page: model.page,
-        size: model.pageSize,
+      ...prevState,
+      page: model.page,
+      size: model.pageSize,
     }));
   };
 
@@ -78,8 +54,7 @@ const Rentals = () => {
         rentalId: selectedRowIds,
         prolongationInWeeks: 4,
       };
-      let apiKey = localStorage.getItem('apiKey')
-      await axios.patch(`http://localhost:8080/book/prolongateRental/apiKey=${apiKey}`, temp);
+      // in progress implementation
       setNotification({ message: 'Udało się prolongować książke.', severity: 'success' });
     } catch (error) {
       setNotification({ message: 'Nie udało się prolongować książki', severity: 'warning' });
@@ -112,12 +87,11 @@ const Rentals = () => {
             pageSizeOptions={[3, 5, 10]}
             rows={rentals}
             columns={[
-              { field: 'bookTitle', headerName: 'Tytuł', flex: 15 },
-              { field: 'author', headerName: 'Autor', flex: 15 },
+              { field: 'title', headerName: 'Tytuł', flex: 15, valueGetter: (params) => params.row.book.title },
+              { field: 'bookAuthor', headerName: 'Autor', flex: 15, valueGetter: (params) => params.row.book.bookAuthor },
               { field: 'status', headerName: 'Status', flex: 10 },
-              { field: 'rentalDate', headerName: 'Data wypożyczenia', flex: 10 },
-              { field: 'predictedReturnDate', headerName: 'Termin zwrotu', flex: 10 },
-              { field: 'is_prolonged', headerName: 'Czy prolongowana', flex: 10 },
+              { field: 'rentalDate', headerName: 'Data wypożyczenia', flex: 10, valueGetter: (params) => moment(params.row.rentalDate).format('YYYY-MM-DD') },
+              { field: 'returnDateExpected', headerName: 'Termin zwrotu', flex: 10, valueGetter: (params) => moment(params.row.returnDateExpected).format('YYYY-MM-DD') },
             ]}
             pagination
             paginationMode="server"
@@ -126,11 +100,11 @@ const Rentals = () => {
             pageSize={pagination.size}
             rowsPerPageOptions={[3, 5, 10]}
             onPaginationModelChange={handlePaginationChange}
-            getRowId={(row) => row.id}
+            getRowId={(row) => row.rentalId}
             onRowSelectionModelChange={(newSelection) => {
               const selectedId = newSelection[0];
               setSelectedRowIds(selectedId);
-              const selectedData = rentals.find(row => row.id === selectedId);
+              const selectedData = rentals.find(row => row.rentalId === selectedId);
               setSelectedRowData(selectedData);
             }}
           />
