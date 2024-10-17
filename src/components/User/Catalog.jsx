@@ -38,6 +38,26 @@ const Catalog = () => {
     }
   };
 
+  const reserveBook = async (bookId) => {
+    try {
+      const requestBody = { bookId };
+
+      const endpoint = '/books/reserveBook';
+      const response = await postRequest(endpoint, requestBody);
+
+      if (response.status === 200) {
+        setNotification({ message: 'Udało się zarezerwować książkę.', severity: 'success' });
+      }
+      else {
+        setNotification({ message: 'Nie udało się zarezerwować książki.', severity: 'warning' });
+      }
+    }
+    catch (error) {
+      console.error('Error reserving book:', error);
+      setNotification({ message: 'Nie udało się zarezerwować książki.', severity: 'error' });
+    }
+  };
+
   useEffect(() => {
     fetchBooks();
   }, [pagination]);
@@ -133,6 +153,7 @@ const Catalog = () => {
                 Autor: {book.bookAuthor}
               </Typography>
               <Button size="small" onClick={() => handleInfoOpen(book)}>Informacje</Button>
+              <Button size="small" onClick={() => reserveBook(book.bookId)}>Zarezerwuj</Button>
             </CardContent>
           </Card>
         </Grid>
