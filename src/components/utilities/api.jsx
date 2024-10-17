@@ -17,6 +17,21 @@ export const postRequest = async (endpoint, data) => {
     }
 };
 
+export const putRequest = async (endpoint, data) => {
+    try {
+        const response = await axios.put(`${API_URL}${endpoint}`, data, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            withCredentials: true
+        });
+        return response;
+    } catch (error) {
+        console.error('Error during POST request:', error);
+        throw error;
+    }
+};
+
 export const getRequest = async (endpoint) => {
     try {
         const response = await axios.get(`${API_URL}${endpoint}`, {

@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Typography, Paper, Grid, Divider,
   Button, IconButton, InputAdornment, TextField,
   ThemeProvider, createTheme,
   Dialog, DialogTitle, DialogContent, DialogActions
 } from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { getRequest, putRequest } from '../utilities/api';
+import Notification from '../Alert/Notification';
 
 const theme = createTheme({
   components: {
@@ -22,22 +23,26 @@ const theme = createTheme({
 });
 
 const Account = () => {
-  // Dane
-  const user = JSON.parse(localStorage.getItem('user'))
-
-
-  // Przelacznik widocznosci hasla
-  const [showPassword, setShowPassword] = useState(false);
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-  //--------------------------------------------------------------------
-
-  // Dialog zmiana hasla
+  const [user, setUser] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [notification, setNotification] = useState(null);
+
+  const fetchUserData = async () => {
+    try {
+      const endpoint = '/users/getUserProfile';
+      const response = await getRequest(endpoint);
+      setUser(response.data);
+    }
+    catch (error) {
+      console.error('Error retrieving user profile information:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserData();
+  }, []);
 
   const handleOpenDialog = () => {
     setOpenDialog(true);
@@ -47,12 +52,33 @@ const Account = () => {
     setOpenDialog(false);
   };
 
-  const handleChangePassword = () => {
-    // Logika do zmiany hasła
-    console.log('Nowe hasło:', newPassword);
-    handleCloseDialog();
+  const handleChangePassword = async () => {
+    if (newPassword != confirmPassword) {
+      setNotification({ message: 'Hasła są niezgodne!', severity: 'warning' });
+    }
+    else {
+      let endpoint = '/users/updateUserPassword';
+      let requestBody = { password: confirmPassword };
+      try {
+        let response = await putRequest(endpoint, requestBody);
+        console.log(response)
+        if (response.status == 200) {
+          setNotification({ message: 'Hasło zmienione!', severity: 'success' });
+        }
+        else {
+          setNotification({ message: 'Błąd odpowiedzi serwera!', severity: 'warning' });
+        }
+      }
+      catch (error) {
+        setNotification({ message: 'Błąd!', severity: 'warning' });
+      }
+      setTimeout(() => {
+        handleCloseDialog();
+      }, 2000);
+    }
   };
-  //---------------------------------------------------------------------
+
+  if (!user) return <Typography variant="h6">Ładowanie...</Typography>;
 
   return (
     <ThemeProvider theme={theme}>
@@ -67,39 +93,20 @@ const Account = () => {
           <Grid item xs={12}>
             <Typography variant="body1">
               <strong>Imię:</strong><br />
-              {user.user.user.name}
+              {user.user.name}
             </Typography>
           </Grid>
           <Grid item xs={12}>
             <Typography variant="body1">
               <strong>Nazwisko:</strong><br />
-              {user.user.user.surname}
+              {user.user.surname}
             </Typography>
           </Grid>
           <Grid item xs={12}>
             <Typography variant="body1">
               <strong>Email:</strong><br />
-              {user.user.user.email}
+              {user.user.email}
             </Typography>
-          </Grid>
-          <Grid item xs={12}>
-            <Typography variant="body1" gutterBottom>
-              <strong>Hasło:</strong>
-            </Typography>
-            <TextField
-              type={showPassword ? 'text' : 'password'}
-              value={user.user.user.password}
-              variant='standard'
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={togglePasswordVisibility}>
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
           </Grid>
           <Grid item xs={12}>
             <Button
@@ -115,6 +122,9 @@ const Account = () => {
         <Dialog open={openDialog} onClose={handleCloseDialog}>
           <DialogTitle>Zmień hasło</DialogTitle>
           <DialogContent>
+            {notification && (
+              <Notification message={notification.message} severity={notification.severity} setOpenProp={setNotification} />
+            )}
             <TextField
               autoFocus
               margin="dense"
@@ -144,7 +154,6 @@ const Account = () => {
         </Dialog>
       </Paper>
     </ThemeProvider>
-
   );
 };
 
