@@ -39,23 +39,23 @@ const LoginSignup = () => {
     let valid = true;
 
     if (!isLogin) {
-      const phoneRegex = /^\d{9}$/;
-      if (!phoneRegex.test(formData.phoneNumber)) {
-        formErrors.phoneNumber = 'Numer telefonu musi mieć dokładnie 9 cyfr';
-        valid = false;
-      }
+      // const phoneRegex = /^\d{9}$/;
+      // if (!phoneRegex.test(formData.phoneNumber)) {
+      //   formErrors.phoneNumber = 'Numer telefonu musi mieć dokładnie 9 cyfr';
+      //   valid = false;
+      // }
 
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(formData.email)) {
-        formErrors.email = 'Nieprawidłowy format email';
-        valid = false;
-      }
+      // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      // if (!emailRegex.test(formData.email)) {
+      //   formErrors.email = 'Nieprawidłowy format email';
+      //   valid = false;
+      // }
 
-      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-      if (!passwordRegex.test(formData.password)) {
-        formErrors.password = 'Hasło musi mieć minimum 8 znaków, zawierać małą i wielką literę, cyfrę oraz znak specjalny';
-        valid = false;
-      }
+      // const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      // if (!passwordRegex.test(formData.password)) {
+      //   formErrors.password = 'Hasło musi mieć minimum 8 znaków, zawierać małą i wielką literę, cyfrę oraz znak specjalny';
+      //   valid = false;
+      // }
     }
 
     setErrors(formErrors);
@@ -74,7 +74,6 @@ const LoginSignup = () => {
 
     try {
       const response = await postRequest(endpoint, dataToSend);
-
       if (response.status === 200) {
         if (isLogin) {
           setNotification({ message: 'Udało się zalogować.', severity: 'success' });
@@ -103,13 +102,19 @@ const LoginSignup = () => {
           }
         } else {
           window.location.reload();
-          setNotification({ message: 'Udało się zarejestrować.', severity: 'success' });
+          setNotification({ message: 'Udało się zarejestrować!', severity: 'success' });
         }
-      } else {
-        console.error(isLogin ? 'Login failed' : 'Registration failed');
+      }
+      else {
+        setNotification({ message: 'Błąd podczas logowania/rejestracji!', severity: 'error' });
       }
     } catch (error) {
-      console.error('Error:', error);
+      if (error.response.status === 409) {
+        setNotification({ message: 'Uzytkownik o podanym emailu już istnieje!', severity: 'warning' });
+      }
+      else {
+        console.error('Error:', error);
+      }
     }
   };
 
@@ -223,9 +228,6 @@ const LoginSignup = () => {
             </Button>
             <Grid container>
               <Grid item xs>
-                <Link href="#" variant="body2">
-                  Zapomniałeś hasła?
-                </Link>
               </Grid>
               <Grid item>
                 <Link href="#" variant="body2" onClick={() => setIsLogin(!isLogin)}>

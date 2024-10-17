@@ -33,16 +33,7 @@ const theme = createTheme({
     },
 });
 
-const Dashboard = ({ userType, buttons, userTypeCheck }) => {
-    const navigate = useNavigate();
-
-    // useEffect(() => {
-    //     const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
-
-    //     if (!user || user.userType !== userTypeCheck) {
-    //         navigate('/authentication');
-    //     }
-    // }, [navigate, userTypeCheck]);
+const Dashboard = ({ buttons }) => {
 
     return (
         <Grid container sx={{ bgcolor: "rgb(219, 223, 234)" }}>
@@ -61,9 +52,9 @@ const Dashboard = ({ userType, buttons, userTypeCheck }) => {
             </Grid>
             <Grid item xs={12} md sx={{ bgcolor: "rgb(255, 255, 255)", borderRadius: "20px", margin: "40px 20px" }}>
                 <Grid container spacing={4} padding={4}>
-                    <Grid item xs={12}>
+                    {/* <Grid item xs={12}>
                         <ResponsiveAppBar />
-                    </Grid>
+                    </Grid> */}
                     <Grid item xs={12}>
                         <Outlet />
                     </Grid>

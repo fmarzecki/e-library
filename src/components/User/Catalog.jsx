@@ -4,9 +4,9 @@ import Card from '@mui/material/Card';
 import CardMedia from '@mui/material/CardMedia';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
-import axios from 'axios';
 import Pagination from '@mui/material/Pagination';
 import Notification from '../Alert/Notification';
+import { postRequest } from '../utilities/api';
 
 const Catalog = () => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -26,19 +26,35 @@ const Catalog = () => {
 
   const fetchBooks = async () => {
     try {
-      let apiKey = localStorage.getItem('apiKey');
-      const response = await axios.post(`http://localhost:8080/book/getAllPaginated/apiKey=${apiKey}`, pagination);
-      setBooks(response.data.data.Books.content);
-      setTotalPages(response.data.data.Books.totalPages);
-      console.log(response.data.data.Books.content);
-    } catch (error) {
+      const endpoint = '/books/getAllPaginated'
+      const response = await postRequest(endpoint, pagination);
+      setBooks(response.data.data.books);
+      setTotalPages(response.data.data.totalPages);
+    }
+    catch (error) {
       console.error('Error fetching books:', error);
       setBooks([]);
       setTotalPages(1);
-      setPagination(prevState => ({
-        ...prevState,
-        page: 0
-      }));
+    }
+  };
+
+  const reserveBook = async (bookId) => {
+    try {
+      const requestBody = { bookId };
+
+      const endpoint = '/books/reserveBook';
+      const response = await postRequest(endpoint, requestBody);
+
+      if (response.status === 200) {
+        setNotification({ message: 'Udało się zarezerwować książkę.', severity: 'success' });
+      }
+      else {
+        setNotification({ message: 'Nie udało się zarezerwować książki.', severity: 'warning' });
+      }
+    }
+    catch (error) {
+      console.error('Error reserving book:', error);
+      setNotification({ message: 'Nie udało się zarezerwować książki.', severity: 'error' });
     }
   };
 
@@ -69,7 +85,6 @@ const Catalog = () => {
       ...prevState,
       page: value - 1
     }));
-    console.log(pagination);
   };
 
   const handleFilterBy = () => {
@@ -89,24 +104,6 @@ const Catalog = () => {
   const handleInfoClose = () => {
     setOpenInfoDialog(false);
     setSelectedBook(null);
-  };
-
-  const reserveBook = async (bookId) => {
-    try {
-      let apiKey = localStorage.getItem('apiKey');
-      let temp = {
-        bookId: bookId,
-      };
-      const response = await axios.patch(`http://localhost:8080/book/reserveBook/apiKey=${apiKey}`, temp);
-      if (response.status === 200) {
-        setNotification({ message: 'Udało się zarezerwować książkę.', severity: 'success' });
-      } else {
-        setNotification({ message: 'Nie udało się zarezerwować książki.', severity: 'warning' });
-      }
-    } catch (error) {
-      console.error('Error reserving book:', error);
-      setNotification({ message: 'Nie udało się zarezerwować książki. - Error zewnętrzny', severity: 'warning' });
-    }
   };
 
   return (
@@ -155,8 +152,8 @@ const Catalog = () => {
               <Typography variant="body2" color="text.secondary">
                 Autor: {book.bookAuthor}
               </Typography>
-              <Button size="small" onClick={() => reserveBook(book.bookId)}>Zarezerwuj</Button>
               <Button size="small" onClick={() => handleInfoOpen(book)}>Informacje</Button>
+              <Button size="small" onClick={() => reserveBook(book.bookId)}>Zarezerwuj</Button>
             </CardContent>
           </Card>
         </Grid>
