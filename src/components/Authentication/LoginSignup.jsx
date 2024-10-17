@@ -94,7 +94,7 @@ const LoginSignup = () => {
             case 'employee':
               navigate('/employeeDashboard');
               break;
-            case 'administrator':
+            case 'admin':
               navigate('/administratorDashboard');
               break;
             default:

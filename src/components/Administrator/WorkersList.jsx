@@ -1,45 +1,51 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { List, ListItem, ListItemText, IconButton, TextField, Typography, CircularProgress, Button, ListItemSecondaryAction } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
+import { List, ListItem, ListItemText, IconButton, TextField, Typography, CircularProgress, ListItemSecondaryAction } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import Notification from '../Alert/Notification';
+import { getRequest, putRequest } from '../utilities/api'; // Update the path as necessary
 
-const WorkersList = () => {
-  const [workers, setWorkers] = useState([]);
+const ManagerList = () => {
+  const [managers, setManagers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState(null);
-  const [editedWorker, setEditedWorker] = useState({
+  const [editedManager, setEditedManager] = useState({
     workerId: '',
-    pesel: '',
-    payAccountNumber: '',
-    address: ''
+    phoneNumber: '',
+    monthlyPay: ''
   });
-  let apiKey = localStorage.getItem('apiKey')
 
   useEffect(() => {
-    const fetchWorkers = async () => {
+    const fetchManagers = async () => {
       try {
-
-        const response = await axios.get(`http://localhost:8080/employeeManager/getAllWorkers/apiKey=${apiKey}`);
-        setWorkers(response.data.data.Workers);
+        const response = await getRequest('/admin/getAllWorkers');
+        
+        // Assuming the backend returns an array of arrays as mentioned
+        const transformedData = response.data.map(manager => ({
+          workerId: manager[0],  // ID
+          name: manager[1],      // Name
+          surname: manager[2],   // Surname
+          phoneNumber: manager[3], // Phone number
+          monthlyPay: manager[4] // Monthly pay
+        }));
+        
+        setManagers(transformedData);
       } catch (error) {
-        setNotification({ message: 'Failed to fetch workers', severity: 'error' });
+        setNotification({ message: 'Failed to fetch managers', severity: 'error' });
       } finally {
         setLoading(false);
       }
     };
-    fetchWorkers();
+    fetchManagers();
   }, []);
 
-  const handleEdit = (worker) => {
-    setEditedWorker(worker);
+  const handleEdit = (manager) => {
+    setEditedManager(manager);
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setEditedWorker(prevState => ({
+    setEditedManager(prevState => ({
       ...prevState,
       [name]: value
     }));
@@ -47,37 +53,19 @@ const WorkersList = () => {
 
   const handleSave = async () => {
     try {
-      await axios.patch(`http://localhost:8080/employeeManager/updateWorker/apiKey=${apiKey}`, editedWorker);
-      setNotification({ message: 'Worker updated successfully', severity: 'success' });
+      await putRequest(`/admin/updateWorker`, editedManager);
+      setNotification({ message: 'Manager updated successfully', severity: 'success' });
 
-      setWorkers(workers.map(worker => worker.workerId === editedWorker.workerId ? editedWorker : worker));
-      setEditedWorker({
+      setManagers(managers.map(manager => manager.workerId === editedManager.workerId ? editedManager : manager));
+      setEditedManager({
         workerId: '',
-        pesel: '',
-        payAccountNumber: '',
-        address: ''
+        phoneNumber: '',
+        monthlyPay: ''
       });
     } catch (error) {
-      setNotification({ message: 'Failed to update worker', severity: 'error' });
+      setNotification({ message: 'Failed to update manager', severity: 'error' });
     }
   };
-
-  const handleDelete = async (workerId) => {
-    try {
-      await axios({
-        method: 'delete',
-        url: `http://localhost:8080/employeeManager/deleteWorker/apiKey=${apiKey}`,
-        data: {
-          workerId: workerId
-        }
-      });
-      setNotification({ message: 'Worker deleted successfully', severity: 'success' });
-      setWorkers(workers.filter(worker => worker.workerId !== workerId));
-    } catch (error) {
-      setNotification({ message: 'Failed to delete worker', severity: 'error' });
-    }
-  };
-  
 
   if (loading) {
     return <CircularProgress />;
@@ -88,31 +76,24 @@ const WorkersList = () => {
       {notification && (
         <Notification message={notification.message} severity={notification.severity} setOpenProp={setNotification} />
       )}
-      <Typography variant="h5" gutterBottom>Workers List</Typography>
+      <Typography variant="h5" gutterBottom>Managers List</Typography>
       <List>
-        {workers.map((worker) => (
-          <ListItem key={worker.workerId}>
-            {editedWorker.workerId === worker.workerId ? (
+        {managers.map((manager) => (
+          <ListItem key={manager.workerId}>
+            {editedManager.workerId === manager.workerId ? (
               <>
                 <TextField
                   fullWidth
-                  label="PESEL"
-                  name="pesel"
-                  value={editedWorker.pesel}
+                  label="Phone Number"
+                  name="phoneNumber"
+                  value={editedManager.phoneNumber}
                   onChange={handleChange}
                 />
                 <TextField
                   fullWidth
-                  label="Pay Account Number"
-                  name="payAccountNumber"
-                  value={editedWorker.payAccountNumber}
-                  onChange={handleChange}
-                />
-                <TextField
-                  fullWidth
-                  label="Address"
-                  name="address"
-                  value={editedWorker.address}
+                  label="Monthly Pay"
+                  name="monthlyPay"
+                  value={editedManager.monthlyPay}
                   onChange={handleChange}
                 />
                 <IconButton onClick={handleSave}>
@@ -122,15 +103,12 @@ const WorkersList = () => {
             ) : (
               <>
                 <ListItemText
-                  primary={`${worker.user.name} ${worker.user.surname}`}
-                  secondary={`ID: ${worker.workerId}, Email: ${worker.user.email}, Phone: ${worker.user.phoneNumber}, Address: ${worker.address}, Monthly Pay: ${worker.monthlyPay}`}
+                  primary={`${manager.name} ${manager.surname}`}
+                  secondary={`Phone Number: ${manager.phoneNumber}, Monthly Pay: ${manager.monthlyPay}`}
                 />
                 <ListItemSecondaryAction>
-                  <IconButton onClick={() => handleEdit(worker)}>
+                  <IconButton onClick={() => handleEdit(manager)}>
                     <EditIcon />
-                  </IconButton>
-                  <IconButton onClick={() => handleDelete(worker.workerId)}>
-                    <DeleteIcon />
                   </IconButton>
                 </ListItemSecondaryAction>
               </>
@@ -142,4 +120,4 @@ const WorkersList = () => {
   );
 };
 
-export default WorkersList;
+export default ManagerList;
