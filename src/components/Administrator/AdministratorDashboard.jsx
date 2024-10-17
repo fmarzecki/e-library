@@ -10,7 +10,7 @@ const AdministratorDashboard = () => {
     { to: "/administratorDashboard/addWorker", label: "Dodaj Pracownika", icon: HistoryIcon }
   ];
 
-  return <Dashboard userType="reader" links={readerLinks} />;
+  return <Dashboard userType="reader" buttons={readerLinks} />;
 };
 
 export default AdministratorDashboard;

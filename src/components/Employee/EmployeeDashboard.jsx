@@ -13,7 +13,7 @@ const EmployeeDashboard = () => {
     { to: "/employeeDashboard/addBook", label: "Dodaj Książkę", icon: HistoryIcon }
   ];
 
-  return <Dashboard userType="worker" links={employeeLinks} />;
+  return <Dashboard userType="worker" buttons={employeeLinks} />;
 };
 
 export default EmployeeDashboard;
