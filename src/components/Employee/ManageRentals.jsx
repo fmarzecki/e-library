@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { List, ListItem, ListItemText, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions, Grid, Paper, TextField, Menu, MenuItem, Pagination } from '@mui/material';
 import Notification from '../Alert/Notification';
+import { postRequest, putRequest } from '../utilities/api';
 
 const ManageRentals = () => {
   const [readers, setReaders] = useState([]);
@@ -23,10 +24,11 @@ const ManageRentals = () => {
 
   const fetchReaders = async () => {
     try {
-      let apiKey = localStorage.getItem('apiKey');
-      const response = await axios.post(`http://localhost:8080/worker/getReadersPaginated/apiKey=${apiKey}`, pagination);
-      setReaders(response.data.data["Reader"].content);
-      setTotalPages(response.data.data["Reader"].totalPages);
+      const endpoint = '/readers/getReadersPaginated';
+      const response = await postRequest(endpoint, pagination);
+
+      setReaders(response.data.data.readers);
+      setTotalPages(response.data.data.totalPages);
     } catch (error) {
       setNotification({ message: 'Nie udało się pobrać użytkowników.', severity: 'warning' });
     }
@@ -36,12 +38,15 @@ const ManageRentals = () => {
     fetchReaders();
   }, [pagination]);
 
-  const handleUserClick = async (userEmail) => {
+  const handleUserClick = async (readerEmail) => {
     try {
-      let apiKey = localStorage.getItem('apiKey');
-      const response = await axios.get(`http://localhost:8080/worker/getRentalsForUser/email=${userEmail}/apiKey=${apiKey}`);
-      setBorrowings(response.data.data["Rentals: "]);
-      setSelectedUser(userEmail);
+      const endpoint = '/rentals/getRentalsForUser';
+      let requestBody = { email: readerEmail };
+
+      const response = await postRequest(endpoint, requestBody);
+
+      setBorrowings(response.data.data);
+      setSelectedUser(readerEmail);
     } catch (error) {
       setNotification({ message: 'Nie udało się pobrać wypożyczeń.', severity: 'warning' });
     }
@@ -49,12 +54,17 @@ const ManageRentals = () => {
 
   const handleBorrowingReturn = async (borrowingId) => {
     try {
-      let apiKey = localStorage.getItem('apiKey');
-      await axios.patch(`http://localhost:8080/worker/return/apiKey=${apiKey}`, { rentalId: borrowingId });
+      const endpoint = '/rentals/returnBook';
+      let requestBody = { rentalId: borrowingId };
+
+      await putRequest(endpoint, requestBody);
+
       setNotification({ message: 'Udało się zwrócić książke', severity: 'success' });
-    } catch (error) {
+    }
+    catch (error) {
       setNotification({ message: 'Nie udało się zwrócić książki', severity: 'warning' });
-    } finally {
+    }
+    finally {
       setDialogOpen(false);
     }
   };
@@ -129,7 +139,7 @@ const ManageRentals = () => {
               <MenuItem
                 key={column.field}
                 onClick={() => handleMenuItemClick(column.field)}
-                selected={selectedMenuItem === column.field} 
+                selected={selectedMenuItem === column.field}
                 sx={{ '&.Mui-selected': { backgroundColor: 'rgba(0, 0, 255, 0.18)' } }}
               >
                 {column.headerName}
@@ -163,8 +173,8 @@ const ManageRentals = () => {
                 {borrowings.map((borrowing) => (
                   <ListItem key={borrowing.rentalId}>
                     <ListItemText
-                      primary={`Tytuł: ${borrowing.bookCopy.book.title}`}
-                      secondary={`Data wypożyczenia: ${borrowing.rentalDate}`}
+                      primary={`Tytuł: ${borrowing.book.title}`}
+                      secondary={`Data wypożyczenia: ${new Date(borrowing.rentalDate).toISOString().split('T')[0]}`}
                     />
                     <Button variant="outlined" color="secondary" onClick={() => { setSelectedBorrowing(borrowing.rentalId); setDialogOpen(true); }}>
                       Zwrot

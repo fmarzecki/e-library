@@ -39,23 +39,23 @@ const LoginSignup = () => {
     let valid = true;
 
     if (!isLogin) {
-      // const phoneRegex = /^\d{9}$/;
-      // if (!phoneRegex.test(formData.phoneNumber)) {
-      //   formErrors.phoneNumber = 'Numer telefonu musi mieć dokładnie 9 cyfr';
-      //   valid = false;
-      // }
+      const phoneRegex = /^\d{9}$/;
+      if (!phoneRegex.test(formData.phoneNumber)) {
+        formErrors.phoneNumber = 'Numer telefonu musi mieć dokładnie 9 cyfr';
+        valid = false;
+      }
 
-      // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      // if (!emailRegex.test(formData.email)) {
-      //   formErrors.email = 'Nieprawidłowy format email';
-      //   valid = false;
-      // }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        formErrors.email = 'Nieprawidłowy format email';
+        valid = false;
+      }
 
-      // const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-      // if (!passwordRegex.test(formData.password)) {
-      //   formErrors.password = 'Hasło musi mieć minimum 8 znaków, zawierać małą i wielką literę, cyfrę oraz znak specjalny';
-      //   valid = false;
-      // }
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      if (!passwordRegex.test(formData.password)) {
+        formErrors.password = 'Hasło musi mieć minimum 8 znaków, zawierać małą i wielką literę, cyfrę oraz znak specjalny';
+        valid = false;
+      }
     }
 
     setErrors(formErrors);

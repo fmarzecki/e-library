@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { List, ListItem, ListItemText, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions, Grid, Paper, TextField, Menu, MenuItem, Pagination } from '@mui/material';
 import Notification from '../Alert/Notification';
+import { postRequest } from '../utilities/api';
 
 const ManageReservations = () => {
   const [readers, setReaders] = useState([]);
@@ -24,10 +25,11 @@ const ManageReservations = () => {
 
   const fetchReaders = async () => {
     try {
-      let apiKey = localStorage.getItem('apiKey');
-      const response = await axios.post(`http://localhost:8080/worker/getReadersPaginated/apiKey=${apiKey}`, pagination);
-      setReaders(response.data.data["Reader"].content);
-      setTotalPages(response.data.data["Reader"].totalPages);
+      const endpoint = '/readers/getReadersPaginated';
+      const response = await postRequest(endpoint, pagination);
+
+      setReaders(response.data.data.readers);
+      setTotalPages(response.data.data.totalPages);
     } catch (error) {
       setNotification({ message: 'Nie udało się pobrać użytkowników.', severity: 'warning' });
     }
@@ -39,9 +41,12 @@ const ManageReservations = () => {
 
   const handleUserClick = async (readerEmail) => {
     try {
-      let apiKey = localStorage.getItem('apiKey');
-      const response = await axios.post(`http://localhost:8080/book/getAllReserved/apiKey=${apiKey}`, { readerEmail: readerEmail });
-      setReservations(response.data.data["Copy list"]);
+      const endpoint = '/reservations/getReservationsForUser';
+      let requestBody = { email: readerEmail };
+      console.log(readerEmail)
+      const response = await postRequest(endpoint, requestBody);
+
+      setReservations(response.data.data);
       setSelectedUser(readerEmail);
       setRentalWeeks({});
     } catch (error) {
@@ -51,13 +56,14 @@ const ManageReservations = () => {
 
   const handleReservationRent = async (reservation) => {
     try {
-      let apiKey = localStorage.getItem('apiKey');
-      const rentalForm = {
-        readerEmail: reservation.reader.user.email,
-        bookId: reservation.book.bookId,
+      const endpoint = '/rentals/rentBook';
+      const requestBody = {
+        readerId: reservation.readerId,
+        copyId: reservation.copyId,
         rentalInWeeks: parseInt(rentalWeeks[reservation.copyId]) || 0
       };
-      await axios.post(`http://localhost:8080/worker/rent/apiKey=${apiKey}`, rentalForm);
+      await postRequest(endpoint, requestBody);
+
       setNotification({ message: 'Udało się wypożyczyć książkę', severity: 'success' });
       setReservations(prevReservations => prevReservations.filter(res => res.reservationId !== reservation.reservationId));
     } catch (error) {
@@ -149,7 +155,7 @@ const ManageReservations = () => {
               <MenuItem
                 key={column.field}
                 onClick={() => handleMenuItemClick(column.field)}
-                selected={selectedMenuItem === column.field} 
+                selected={selectedMenuItem === column.field}
                 sx={{ '&.Mui-selected': { backgroundColor: 'rgba(0, 0, 255, 0.18)' } }}
               >
                 {column.headerName}
@@ -162,7 +168,7 @@ const ManageReservations = () => {
             <Typography variant="h5" gutterBottom>Lista czytelników:</Typography>
             <List>
               {readers.map((reader) => (
-                <ListItem key={reader.readerId} button onClick={() => handleUserClick(reader.user.email)} sx={{
+                <ListItem key={reader.id} button onClick={() => handleUserClick(reader.user.email)} sx={{
                   backgroundColor: selectedUser === reader.user.email ? 'rgba(227, 229, 255, 0.78)' : 'inherit'
                 }}>
                   <ListItemText
@@ -197,9 +203,9 @@ const ManageReservations = () => {
                       />
                       <Button
                         key={'Button' + reservation.copyId}
-                        variant="outlined" 
-                        color="secondary" 
-                        onClick={() => { setSelectedReservation(reservation); setDialogOpen(true); }} 
+                        variant="outlined"
+                        color="secondary"
+                        onClick={() => { setSelectedReservation(reservation); setDialogOpen(true); }}
                         disabled={!rentalWeeks[reservation.copyId] || rentalWeeks[reservation.copyId] <= 0 || rentalWeeks[reservation.copyId] > 8}
                       >
                         Wypożycz
