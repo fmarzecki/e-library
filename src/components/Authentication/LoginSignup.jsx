@@ -86,7 +86,6 @@ const LoginSignup = () => {
           localStorage.setItem('token', token);
           localStorage.setItem('userRole', userRole);
 
-
           // Navigate based on the user role
           switch (userRole) {
             case 'user':
@@ -95,7 +94,7 @@ const LoginSignup = () => {
             case 'employee':
               navigate('/employeeDashboard');
               break;
-            case 'administrator':
+            case 'admin':
               navigate('/administratorDashboard');
               break;
             default:

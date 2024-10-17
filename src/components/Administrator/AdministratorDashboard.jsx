@@ -6,11 +6,10 @@ import Dashboard from '../Dashboard';
 const AdministratorDashboard = () => {
   const readerLinks = [
     { to: "/administratorDashboard/workers", label: "Lista Pracowników", icon: BookmarkAddedIcon },
-    { to: "/administratorDashboard/managers", label: "Lista Managerów", icon: HistoryIcon },
     { to: "/administratorDashboard/addWorker", label: "Dodaj Pracownika", icon: HistoryIcon }
   ];
 
-  return <Dashboard userType="reader" links={readerLinks} />;
+  return <Dashboard userType="reader" buttons={readerLinks} />;
 };
 
 export default AdministratorDashboard;

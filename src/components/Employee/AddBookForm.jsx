@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { postRequest } from '../utilities/api'; // Zaimportuj funkcję postRequest
 import Notification from '../Alert/Notification';
 import { TextField, Button, Typography, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import ImageUploader from "../utilities/ImageUploader";
@@ -7,14 +7,11 @@ import ImageUploader from "../utilities/ImageUploader";
 const AddBookForm = () => {
   const [imageUrl, setImageUrl] = useState('');
   const [notification, setNotification] = useState(null);
-  const [errors, setErrors] = useState({}); // Definicja stanu błędów
+  const [errors, setErrors] = useState({}); // Definition of error state
 
   const [bookData, setBookData] = useState({
     title: '',
-    bookType: '',
-    releaseDate: '',
     bookCategory: '',
-    averageBookRating: '',
     imageUrl: '',
     bookAuthor: '',
     description: ''
@@ -50,8 +47,6 @@ const AddBookForm = () => {
     return valid;
   };
 
-  let apiKey = localStorage.getItem('apiKey');
-  
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -60,28 +55,32 @@ const AddBookForm = () => {
     }
 
     try {
-      await axios.post(`http://localhost:8080/book/save/apiKey=${apiKey}`, bookData);
-      setImageUrl(null);
-
-      setBookData({                           // Reset form after successful submission
-        bookType: '',
+      // Używamy teraz postRequest zamiast axios.post
+      await postRequest(`/books/save`, {
+        title: bookData.title,
+        bookCategory: bookData.bookCategory,
+        imageUrl: bookData.imageUrl,
+        bookAuthor: bookData.bookAuthor,
+        description: bookData.description
+      });
+      
+      // Reset form after successful submission
+      setBookData({
         title: '',
-        releaseDate: '',
         bookCategory: '',
-        averageBookRating: '',
         imageUrl: '',
         bookAuthor: '',
         description: ''
       });
-
+      setImageUrl(''); // Reset the image URL
       setNotification({ message: 'Udało się dodać książkę.', severity: 'success' });
     } catch (error) {
+      console.error('Error adding book:', error);
       setNotification({ message: 'Nie udało się dodać książki.', severity: 'warning' });
     }
   };
 
   const bookCategories = ["fantasy", "science_fiction", "romance", "thriller", "drama", "horror", "crime", "education"];
-  const bookTypes = ["paperback", "hardcover", "ebook", "audiobook"];
 
   return (
     <>
@@ -99,30 +98,9 @@ const AddBookForm = () => {
           onChange={handleChange}
           error={!!errors.title}
           helperText={errors.title}
+          required
         />
-        <FormControl fullWidth margin="dense">
-          <InputLabel>Typ Książki</InputLabel>
-          <Select
-            name="bookType"
-            value={bookData.bookType}
-            onChange={handleChange}
-          >
-            {bookTypes.map((type) => (
-              <MenuItem key={type} value={type}>
-                {type}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <TextField
-          margin="dense"
-          fullWidth
-          name="releaseDate"
-          type="date"
-          value={bookData.releaseDate}
-          onChange={handleChange}
-        />
-        <FormControl fullWidth margin="dense">
+        <FormControl fullWidth margin="dense" required>
           <InputLabel>Kategoria</InputLabel>
           <Select
             name="bookCategory"
@@ -148,6 +126,7 @@ const AddBookForm = () => {
           onChange={handleChange}
           error={!!errors.bookAuthor}
           helperText={errors.bookAuthor}
+          required
         />
         <TextField
           margin="dense"
@@ -160,6 +139,7 @@ const AddBookForm = () => {
           rows={4}
           error={!!errors.description}
           helperText={errors.description}
+          required
         />
         <Button type="submit" variant="contained" color="primary" sx={{ marginTop: '10px' }}>
           Dodaj książkę

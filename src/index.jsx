@@ -16,7 +16,6 @@ import AddBookForm from './components/Employee/AddBookForm';
 import ManageBooks from './components/Employee/ManageBooks';
 import WorkersList from './components/Administrator/WorkersList';
 import AdministratorDashboard from './components/Administrator/AdministratorDashboard';
-import WarehouseManagersList from './components/Administrator/WarehouseManagerList';
 import EmployeeDashboard from './components/Employee/EmployeeDashboard'
 import ManageNews from './components/Employee/ManageNews';
 import AddWorker from './components/Administrator/AddWorker';
@@ -112,10 +111,6 @@ const router = createBrowserRouter([
       {
         path: '/administratorDashboard/workers',
         element: <WorkersList />,
-      },
-      {
-        path: '/administratorDashboard/managers',
-        element: <WarehouseManagersList />,
       },
       {
         path: '/administratorDashboard/addWorker',
