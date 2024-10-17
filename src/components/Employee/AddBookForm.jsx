@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { postRequest } from '../utilities/api'; // Zaimportuj funkcję postRequest
 import Notification from '../Alert/Notification';
 import { TextField, Button, Typography, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import ImageUploader from "../utilities/ImageUploader";
@@ -55,17 +55,13 @@ const AddBookForm = () => {
     }
 
     try {
-      const apiKey = localStorage.getItem('apiKey'); // Ensure you have an API key stored
-      await axios.post(`http://localhost:8080/books/save`, {
+      // Używamy teraz postRequest zamiast axios.post
+      await postRequest(`/books/save`, {
         title: bookData.title,
         bookCategory: bookData.bookCategory,
         imageUrl: bookData.imageUrl,
         bookAuthor: bookData.bookAuthor,
         description: bookData.description
-      }, {
-        headers: {
-          'Authorization': `Bearer ${apiKey}` // Include the API key if needed
-        }
       });
       
       // Reset form after successful submission

@@ -1,47 +1,57 @@
-import React, { useEffect, useState } from 'react'
-import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { getRequest } from '../utilities/api'; // Adjust the path as necessary
 
 function News() {
-    const [news, setNews] = useState([
-      {name: "Blad wczytywania danych", contents: "Blad wczytywania danych"},
-    ]);
+    const [news, setNews] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-      let apiKey = localStorage.getItem('apiKey')
-      axios.get(`http://localhost:8080/worker/getNewsPosts/apiKey=${apiKey}`)
-          .then(response => {
-            console.log(response)
-          setNews(response.data.data["News posts: "]);
-           })
-          .catch(error => {
-          console.error(error);
-      });
-  }, [])
+        const fetchNews = async () => {
+            try {
+                const response = await getRequest('/news/getAll'); // Use your defined getRequest function
 
-  return (
+                if (response.data.success) {
+                    setNews(response.data.data); // Assuming the data structure is correct
+                } else {
+                    throw new Error('Failed to fetch news');
+                }
+            } catch (err) {
+                console.error(err);
+                setError('Error fetching news posts. Please try again later.');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchNews();
+    }, []);
+
+    if (loading) return <div>Loading...</div>;
+    if (error) return <div>{error}</div>;
+
+    return (
         <div>
-          {news.map( post => {
-            return (
-            <Accordion>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel1-content"
-                id="panel1-header"
-                sx={{fontWeight: 'bold'}}>
-                {post.name}
-              </AccordionSummary>
-              <AccordionDetails>
-                {post.contents}
-                {post.contents}
-              </AccordionDetails>
-            </Accordion>
-          )})}
+            {news.map(post => (
+                <Accordion key={post.postId}>
+                    <AccordionSummary
+                        expandIcon={<ExpandMoreIcon />}
+                        aria-controls="panel1-content"
+                        id="panel1-header"
+                        sx={{ fontWeight: 'bold' }}>
+                        {post.name}
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <div>{post.contents}</div>
+                    </AccordionDetails>
+                </Accordion>
+            ))}
         </div>
-      );
+    );
 }
 
-export default News
+export default News;

@@ -43,3 +43,18 @@ export const getRequest = async (endpoint) => {
         throw error;
     }
 };
+
+export const deleteRequest = async (endpoint) => {
+    try {
+        const response = await axios.delete(`${API_URL}${endpoint}`, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            withCredentials: true
+        });
+        return response;
+    } catch (error) {
+        console.error('Error during DELETE request:', error);
+        throw error;
+    }
+};

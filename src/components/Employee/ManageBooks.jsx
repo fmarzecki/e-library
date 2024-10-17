@@ -1,110 +1,66 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import {Typography, List, ListItem, ListItemText, ListItemSecondaryAction, IconButton, TextField, Button, Menu, MenuItem } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-import SaveIcon from '@mui/icons-material/Save';
+import { Grid, TextField, Button, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import Card from '@mui/material/Card';
+import CardMedia from '@mui/material/CardMedia';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
 import Pagination from '@mui/material/Pagination';
-import Stack from '@mui/material/Stack';
 import Notification from '../Alert/Notification';
+import { postRequest } from '../utilities/api';
 
-const BookList = () => {
-  const [numberOfCopies, setNumberOfCopies] = useState();
+const Catalog = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedMenuItem, setSelectedMenuItem] = useState('');
   const [books, setBooks] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
   const [filterText, setFilterText] = useState('');
   const [notification, setNotification] = useState(null);
-  const [editedBook, setEditedBook] = useState({
-    bookId: '',
-    title: '',
-    releaseDate: '',
-    bookAuthor: ''
-  });
   const [pagination, setPagination] = useState({
     filter: '',
     filterBy: '',
     page: 0,
-    size: 4,
+    size: 8,
   });
-  let apiKey = localStorage.getItem('apiKey')
-  let user = JSON.parse(localStorage.getItem('user'))
+  const [openInfoDialog, setOpenInfoDialog] = useState(false);
+  const [selectedBook, setSelectedBook] = useState(null);
 
   const fetchBooks = async () => {
     try {
-      const response = await axios.post(`http://localhost:8080/book/getAllPaginated/apiKey=${apiKey}`, pagination);
-      setBooks(response.data.data.Books.content); // Save fetched books
-      setTotalPages(response.data.data.Books.totalPages); // Save total number of pages
-    } catch (error) {
-      setBooks([]); // Reset state if there are no books matching the search
+      const endpoint = '/books/getAllPaginated'
+      const response = await postRequest(endpoint, pagination);
+      setBooks(response.data.data.books);
+      setTotalPages(response.data.data.totalPages);
+    }
+    catch (error) {
+      console.error('Error fetching books:', error);
+      setBooks([]);
       setTotalPages(1);
-      setPagination(prevState => ({
-        ...prevState,
-        page: 0
-      }));
+    }
+  };
+
+  const reserveBook = async (bookId) => {
+    try {
+      const requestBody = { bookId };
+
+      const endpoint = '/books/reserveBook';
+      const response = await postRequest(endpoint, requestBody);
+
+      if (response.status === 200) {
+        setNotification({ message: 'Udało się zarezerwować książkę.', severity: 'success' });
+      }
+      else {
+        setNotification({ message: 'Nie udało się zarezerwować książki.', severity: 'warning' });
+      }
+    }
+    catch (error) {
+      console.error('Error reserving book:', error);
+      setNotification({ message: 'Nie udało się zarezerwować książki.', severity: 'error' });
     }
   };
 
   useEffect(() => {
     fetchBooks();
   }, [pagination]);
-
-  const handleDelete = async (bookId) => {
-    try {
-      await axios.delete(`http://localhost:8080/book/delete/apiKey=${apiKey}`, { data: { bookId } });
-      setNotification({ message: 'Udało się usunąć książke.', severity: 'success' });
-
-      fetchBooks(); // Refresh the list after deleting a book
-    } catch (error) {
-      setNotification({ message: 'Nie udało się usunąć książki.', severity: 'warning' });
-    }
-  };
-
-  const handleSave = async () => {
-    try {
-      await axios.post(`http://localhost:8080/book/save/apiKey=${apiKey}`, editedBook);
-      setNotification({ message: 'Udało się zaktualizować książke.', severity: 'success' });
-
-      if (numberOfCopies > 0) {
-        const addCopiesEndpoint = `http://localhost:8080/warehouseManager/addBookCopy/copies=${numberOfCopies}/apiKey=${apiKey}`;
-        const bookCopyPayload = {
-          bookId: editedBook.bookId,
-          shelfPlace: '10', // Set the appropriate shelf place
-          workerId: 1, // Set the appropriate workerId
-        };
-        await axios.post(addCopiesEndpoint, bookCopyPayload);
-      }
-
-      fetchBooks(); // Refresh the list after saving the book and adding copies
-      setEditedBook({ // Exit edit mode, reset state
-        bookId: '',
-        title: '',
-        releaseDate: '',
-        bookAuthor: ''
-      });
-
-      setNumberOfCopies(0); // Reset the number of copies
-    } catch (error) {
-      setNotification({ message: 'Nie udało się zaktualizować książki.', severity: 'warning' });
-    }
-  };
-
-  const handleEdit = (book) => {
-    setEditedBook(book);
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setEditedBook(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
-  };
-
-  const handleCopiesChange = (e) => {
-    setNumberOfCopies(Number(e.target.value));
-  };
 
   const columns = [
     { field: 'title', headerName: 'Tytuł', width: 130 },
@@ -131,7 +87,7 @@ const BookList = () => {
     }));
   };
 
-  const handleFilterBy = (e) => {
+  const handleFilterBy = () => {
     setPagination(prevState => ({
       ...prevState,
       filterBy: selectedMenuItem,
@@ -140,112 +96,91 @@ const BookList = () => {
     }));
   };
 
+  const handleInfoOpen = (book) => {
+    setSelectedBook(book);
+    setOpenInfoDialog(true);
+  };
+
+  const handleInfoClose = () => {
+    setOpenInfoDialog(false);
+    setSelectedBook(null);
+  };
+
   return (
-    <>
+    <Grid container justifyContent="center" alignItems="center" spacing={3}>
       {notification && (
         <Notification message={notification.message} severity={notification.severity} setOpenProp={setNotification} />
       )}
-
-      <TextField
-        label="Filtruj"
-        variant="outlined"
-        sx={{ width: { xs: '70%' } }}
-        onChange={(e) => { setFilterText(e.target.value); }}
-      />
-      <TextField
-        sx={{ width: { xs: '30%' } }}
-        type="submit"
-        value="Wyślij"
-        onClick={handleFilterBy}
-      />
-      <Button variant="outlined" onClick={handleMenuOpen}>Filtruj według</Button>
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleMenuClose}
-      >
-        {columns.map((column) => (
-          <MenuItem
-            key={column.field}
-            onClick={() => handleMenuItemClick(column.field)}
-            selected={selectedMenuItem === column.field} // Highlight the selected item
-            sx={{ '&.Mui-selected': { backgroundColor: 'rgba(0, 0, 255, 0.18)' } }} // Change highlight color
-          >
-            {column.headerName}
-          </MenuItem>
-        ))}
-      </Menu>
-      <Typography m={2} variant="h4" gutterBottom>Lista książek</Typography>
-      <List>
-        {books.map((book) => (
-          <ListItem key={book.bookId}>
-            {editedBook.bookId === book.bookId ? (
-              <>
-                <TextField
-                  fullWidth
-                  label="Tytuł"
-                  name="title"
-                  value={editedBook.title}
-                  onChange={handleChange}
-                />
-                <TextField
-                  fullWidth
-                  type="date"
-                  name="releaseDate"
-                  value={editedBook.releaseDate}
-                  onChange={handleChange}
-                />
-                <TextField
-                  fullWidth
-                  label="Book Author"
-                  name="bookAuthor"
-                  value={editedBook.bookAuthor}
-                  onChange={handleChange}
-                />
-                <TextField
-                  fullWidth
-                  label="URL"
-                  name="imageUrl"
-                  value={editedBook.imageUrl}
-                  onChange={handleChange}
-                />
-                <TextField
-                  fullWidth
-                  label="Dodaj Kopie"
-                  type="number"
-                  name="numberOfCopies"
-                  value={numberOfCopies}
-                  onChange={handleCopiesChange}
-                />
-                <IconButton onClick={handleSave}>
-                  <SaveIcon />
-                </IconButton>
-              </>
-            ) : (
-              <>
-                <ListItemText
-                  primaryTypographyProps={{ fontWeight: 'bold', maxWidth: '60%' }}
-                  primary={book.title}
-                  secondary={`Author: ${book.bookAuthor}`}
-                />
-                <ListItemSecondaryAction>
-                  <IconButton onClick={() => handleDelete(book.bookId)}>
-                    <DeleteIcon />
-                  </IconButton>
-                  <IconButton onClick={() => handleEdit(book)}>
-                    <EditIcon />
-                  </IconButton>
-                </ListItemSecondaryAction>
-              </>
-            )}
-          </ListItem>
-        ))}
-      </List>
-      <Stack spacing={2}>
+      <Grid item xs={12}>
+        <TextField
+          label="Filtruj"
+          variant="outlined"
+          sx={{ width: '80%' }}
+          onChange={(e) => { setFilterText(e.target.value); }}
+        />
+        <TextField
+          sx={{ width: '20%' }}
+          type="submit"
+          onClick={handleFilterBy}
+        />
+        <Button variant="outlined" onClick={handleMenuOpen}>Filtruj według</Button>
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleMenuClose}
+        >
+          {columns.map((column) => (
+            <MenuItem
+              key={column.field}
+              onClick={() => handleMenuItemClick(column.field)}
+              selected={selectedMenuItem === column.field}
+              sx={{ '&.Mui-selected': { backgroundColor: 'rgba(0, 0, 255, 0.18)' } }}
+            >
+              {column.headerName}
+            </MenuItem>
+          ))}
+        </Menu>
+      </Grid>
+      {books.map((book) => (
+        <Grid item xs={12} sm={4} md={2} key={book.bookId} minWidth={300}>
+          <Card>
+            <CardMedia component="img" alt="book_image" sx={{ objectFit: 'contain', height: '340px' }} image={book.imageUrl} />
+            <CardContent>
+              <Typography variant="h6" component="div">
+                {book.title.length > 20 ? `${book.title.slice(0, 20)}...` : book.title}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Autor: {book.bookAuthor}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      ))}
+      <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center' }}>
         <Pagination count={totalPages} page={pagination.page + 1} color="primary" onChange={handlePageChange} />
-      </Stack>
-    </>
+      </Grid>
+
+      {selectedBook && (
+        <Dialog open={openInfoDialog} onClose={handleInfoClose}>
+          <DialogTitle>Informacje o książce</DialogTitle>
+          <DialogContent>
+            <Typography variant="h6" gutterBottom>
+              Tytuł: {selectedBook.title}
+            </Typography>
+            <Typography variant="subtitle1" gutterBottom>
+              Autor: {selectedBook.bookAuthor}
+            </Typography>
+            <Typography variant="body1" gutterBottom>
+              Opis: {selectedBook.description}
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleInfoClose} color="primary">Zamknij</Button>
+          </DialogActions>
+        </Dialog>
+      )}
+    </Grid>
   );
 };
 
-export default BookList;
+export default Catalog;
