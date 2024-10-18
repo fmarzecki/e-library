@@ -20,6 +20,9 @@ const UsersList = () => {
     const [openDialog, setOpenDialog] = useState(false);
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
+    const [newRole, setNewRole] = useState('');
+
 
     const fetchUsers = async () => {
         try {
@@ -38,12 +41,69 @@ const UsersList = () => {
         fetchUsers();
     }, [pagination]);
 
+    const handleOpenRoleDialog = () => {
+        setIsRoleDialogOpen(true);
+    };
+
+    const handleCloseRoleDialog = () => {
+        setIsRoleDialogOpen(false);
+        setNewRole('');
+    };
+
+    const handleChangeUserRole = async () => {
+        if (!newRole) {
+            setNotification({ message: 'Wybierz nową rolę!', severity: 'warning' });
+            return;
+        }
+
+        try {
+            const endpoint = '/users/changeRole';
+            const requestBody = { userId: selectedRowIds, role: newRole };
+            const response = await putRequest(endpoint, requestBody);
+
+            if (response.status === 200) {
+                setNotification({ message: 'Rola zmieniona!', severity: 'success' });
+                fetchUsers(); // odśwież listę użytkowników
+                handleCloseRoleDialog(); // Zamknij dialog
+            } else {
+                setNotification({ message: 'Błąd odpowiedzi serwera!', severity: 'warning' });
+            }
+        } catch (error) {
+            setNotification({ message: 'Błąd!', severity: 'warning' });
+        }
+    };
+
+
+
     const handlePaginationChange = (model) => {
         setPagination(prevState => ({
             ...prevState,
             page: model.page,
             size: model.pageSize,
         }));
+    };
+
+    const handleToggleBan = async () => {
+        try {
+            if (!selectedRowData) {
+                setNotification({ message: 'Wybierz użytkownika, aby zablokować/odblokować.', severity: 'warning' });
+                return;
+            }
+
+            const endpoint = '/users/toggleBan';
+            const requestBody = { userId: selectedRowIds, status: selectedRowData.isBlocked };
+            console.log(requestBody)
+            const response = await putRequest(endpoint, requestBody);
+
+            if (response.status === 200) {
+                setNotification({ message: "Status zablokowania zmieniony", severity: 'success' });
+                fetchUsers();
+            } else {
+                setNotification({ message: 'Błąd odpowiedzi serwera!', severity: 'warning' });
+            }
+        } catch (error) {
+            setNotification({ message: 'Błąd przy blokowaniu/odblokowywaniu użytkownika!', severity: 'error' });
+        }
     };
 
     const handleOpenDialog = () => {
@@ -109,6 +169,7 @@ const UsersList = () => {
                             { field: 'surname', headerName: 'Nazwisko', flex: 10 },
                             { field: 'email', headerName: 'Email', flex: 10 },
                             { field: 'role', headerName: 'Rola', flex: 10 },
+                            { field: 'isBlocked', headerName: 'Blokada', flex: 10 },
                         ]}
                         pagination
                         paginationMode="server"
@@ -134,6 +195,23 @@ const UsersList = () => {
                 >
                     Zmień hasło
                 </Button>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleToggleBan}
+                    disabled={!selectedRowData}
+                >
+                    {selectedRowData?.isBlocked ? 'Odblokuj' : 'Zablokuj'}
+                </Button>
+                <Button
+                    variant="outlined"
+                    color="primary"
+                    onClick={handleOpenRoleDialog}
+                    disabled={!selectedRowData}
+                >
+                    Zmień rolę
+                </Button>
+
             </Paper>
 
             {/* Password Change Dialog */}
@@ -170,6 +248,34 @@ const UsersList = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            <Dialog open={isRoleDialogOpen} onClose={handleCloseRoleDialog}>
+                <DialogTitle>Zmień rolę użytkownika</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        select
+                        label="Nowa rola"
+                        value={newRole}
+                        onChange={(e) => setNewRole(e.target.value)}
+                        SelectProps={{
+                            native: true,
+                        }}
+                        variant="outlined"
+                        margin="normal"
+                        fullWidth
+                    >
+                        <option value="">Wybierz rolę</option>
+                        <option value="admin">Admin</option>
+                        <option value="employee">Employee</option>
+                        <option value="user">User</option>
+                    </TextField>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseRoleDialog} color="primary">Anuluj</Button>
+                    <Button onClick={handleChangeUserRole} color="primary">Zapisz</Button>
+                </DialogActions>
+            </Dialog>
+
         </div>
     );
 };
