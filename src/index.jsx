@@ -24,6 +24,7 @@ import ManageReservations from './components/Employee/ManageReservations';
 import NoAccess from './components/error/NoAccess'
 import ProtectedRoute from './components/ProtectedRoute'
 import { RolesEnum } from './components/utilities/rolesEnum';
+import UsersList from './components/Administrator/UsersList';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -115,6 +116,10 @@ const router = createBrowserRouter([
       {
         path: '/administratorDashboard/addWorker',
         element: <AddWorker />,
+      },
+      {
+        path: '/administratorDashboard/usersList',
+        element: <UsersList />,
       },
     ]
   }
